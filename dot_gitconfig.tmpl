@@ -1,0 +1,192 @@
+[alias]
+  # see all aliases
+  alias = !git config --get-regexp alias | sed -re 's/alias\\.(\\S*)\\s(.*)$/\\1 = \\2/g'
+
+  # run a command in all repo folders
+  all = "!f() { ls | xargs -I{} git -C {} $1; }; f"
+
+  # Show all branches
+  ba = branch -a
+
+  # delete merged local branch
+  bd = branch -d
+
+  # delete unmerged local branch
+  bD = branch -D
+
+  # show local branches
+  br = branch
+
+  # see branch summary of last commits
+  bs = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
+
+  # checkout branch
+  co = checkout
+
+  # checkout new branch
+  cob = checkout -b
+
+  # clone
+  cl = clone
+
+  # commit open default editor
+  ci = commit
+
+  # commit with message
+  cm = commit -m
+
+  # diff cached
+  dc = diff --cached
+
+  # Ensure that force-pushing won't lose someone else's work (only mine)
+  enforce = push --force-with-lease
+
+  # Forget something F&*$
+  fk = !git add -A && git oops && git enforce
+
+  # show last commit
+  last = log -1 --stat
+
+  # pretty log
+  l = log --graph --pretty='format:%C(red)%d%C(reset) %C(yellow)%h%C(reset) %ar %C(green)%aN%C(reset) %s'
+  l2 = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+
+  # Useful when you have to update your last commit
+  # with staged files without editing the commit message.
+  oops = commit --amend --no-edit
+
+  # Edit last commit message
+  reword = commit --amend
+
+  # show commits by user
+  rank = shortlog -sn --no-merges
+
+  # search for a string in all commits
+  se = !git rev-list --all | xargs git grep -F
+
+  # see short status
+  st = status -sb
+
+  # set upstream branch
+  su = !git branch --set-upstream-to=origin/$(git rev-parse --abbrev-ref HEAD)
+
+  # log since yesterday
+  tl = log --stat --since='1 Day Ago' --graph --pretty=oneline --abbrev-commit --date=relative
+
+  # Undo last commit but keep changed files in stage
+  uc = !git reset --soft HEAD~1
+
+  # clean all local staged changes
+  un = !git reset --hard HEAD
+
+[branch]
+  # sorts the list by the most recent commit date rather than alpha order
+  sort = -committerdate
+
+[color]
+  # Enable colors in color-supporting terminals
+  ui = auto
+
+[column]
+  # whether supported commands should output in columns
+  #ui = auto
+
+[commit]
+  # Sign commits by default
+  gpgsign = false
+
+  # Add complete diff to commit message for context, will get snipped
+  verbose = true
+
+[core]
+  # Global ignore file (not shared)
+  excludesfile = ~/.gitignore
+
+  # editor to use for messages
+  editor = nvim
+
+  # should the executable bit of files be honored
+  filemode = false
+
+  # comma separated list of common whitespace problems to notice
+  whitespace = cr-at-eol
+
+[credential]
+  # external helper to be called when a username or password credential
+  helper = store
+
+[diff]
+  # Use better, descriptive initials (c, i, w) instead of a/b.
+  algorithm = histogram
+  mnemonicPrefix = true
+
+  # color moved pieces of code
+  colorMoved = plain
+
+  # Show renames/moves as such
+  renames = true
+
+[fetch]
+  # if true, fetch will attempt to update all available remotes. 
+  all = true
+
+  # fetching will also remove any remote-tracking references that no longer exist on the remote 
+  prune = true
+
+  # prune tags that set with prune maintain 1:1 to upstream refs
+  pruneTags = true
+
+[gpg]
+  # the program used for the signing format you chose
+  program = gpg
+
+[init]
+  # overriding the default branch name (main; be socially conscious)
+  defaultBranch = main
+
+[push]
+  # Automagically setup remote tracking branch with same name
+  autoSetupRemote = true
+
+  # Default push should only push the current branch to its push target, regardless of its remote name
+  default = simple
+
+  # When pushing, also push tags whose commit-ishs are now reachable upstream
+  followTags = true
+
+[pull]
+  # Rebase on pull by default
+  rebase = true
+
+[rebase]
+  # automatically create a temporary stash entry before the operation begins
+  autoStash = true
+
+  # autosuash on rebase
+  autoSquash = true
+
+  # update refs when operation completes
+  updateRefs = true
+
+[safe]
+  # Git-tracked directories that are considered safe even if owned by someone other than the current user.
+  directory = /ansible
+  directory = /github/workspace
+
+[tag]
+  # Sort tags as version numbers whenever applicable, so 1.10.2 is AFTER 1.2.0.
+  sort = version:refname
+
+[user]
+  # User info for commits
+	name = Kevin Edwards
+  email = 
+  signingkey = 
+  useConfigOnly = true
+
+[rerere]
+  # recording of resolved conflicts, so that identical conflict hunks can be resolved automatically
+  enabled = true
+
+  # updates the index with the resulting contents after it cleanly resolves conflicts using previously recorded resolutions
+  autoupdate = true
