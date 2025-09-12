@@ -1,0 +1,19 @@
+pager = "less -R"
+encryption = "gpg"
+
+[add]
+    secrets = "error"
+
+[edit]
+    apply = true
+
+[git]
+    autoCommit = true
+    autoPush = true
+
+[gpg]
+    recipient = "kedwards@kevinedwards.ca"
+
+[hooks.edit-config-template.post]
+    command = "chezmoi"
+    args = ["init"]
