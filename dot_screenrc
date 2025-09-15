@@ -1,0 +1,64 @@
+# CTRL-A is needed
+escape ^za
+
+# General settings
+shell -${SHELL}
+vbell on
+vbell_msg '!Bell!'
+autodetach on
+startup_message off
+defscrollback 10000
+
+# Statusline
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%-21=%{= .m}%D %d.%m.%Y%{g}]'
+
+# Termcapinfo for xterm
+term xterm-color
+
+# Do not resize window
+termcapinfo xterm* Z0=\E[?3h:Z1=\E[?3l:is=\E[r\E[m\E[2J\E[H\E[?7h\E[?1;4;6l
+
+# Increase output buffer for speed
+termcapinfo xterm* OL=1000
+
+# Allow scrolling like in regular terminals
+termcapinfo xterm* ti@:te@
+
+caption splitonly
+caption string "%?%F%{.c.}%?%3n %t%? [%h]%?"
+
+# remove keyboard bindings
+bind x    # Do not lock screen
+bind ^x   # Idem
+bind h    # Do not write out copy of screen to disk
+bind ^h   # Idem
+bind ^\   # Do not kill all windows/exit screen
+bind .    # Disable dumptermcap
+
+# Use the function keys F7 and F8 to cycle backwards/forwards
+# in the list of existing windows:
+bindkey -k k7 prev
+bindkey -k k8 next
+
+# Vim like key bindings for moving around windows
+bind l focus right # C-a l goes right
+bind h focus left  # C-a h goes left
+bind k focus up    # C-a k goes up
+bind j focus down  # C-a j goes down
+
+# Bind keys for resizing
+bind L resize -h +10  # C-a L increases horizontally by 10
+bind H resize -h -10  # C-a H decreases horizontally by 10
+bind K resize -v +10  # C-a K increases vertically by 10
+bind J resize -v -10  # C-a K decreases vertically by 10
+
+# startup screens
+screen -t gp 0 gopass
+split
+focus up
+resize 1
+focus down
+screen -t home 1
+focus
+focus
