@@ -1,0 +1,612 @@
+set nocompatible
+
+" vim-plug {{{
+	"{{{ onLoad
+		if empty(glob('~/.vim/autoload/plug.vim'))
+			silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+			autocmd VimEnter * PlugInstall | source $MYVIMRC
+		endif
+	"}}}
+	"{{{ Plugins
+		call plug#begin('~/.vim/plugged')
+			" Automatically install missing plugins on startup
+			if !empty(filter(copy(g:plugs), '!isdirectory(v:val.dir)'))
+					autocmd VimEnter * PlugInstall | q
+			endif
+
+			" Theme
+			Plug 'tomasr/molokai'
+
+			" Status Bar
+			Plug 'itchyny/lightline.vim'
+
+			" Linting
+			Plug 'w0rp/ale'
+
+			" Vim sugar for the UNIX shell commands that need it the most
+			Plug 'tpope/vim-eunuch'
+
+            " fugitive.vim: A Git wrapper so awesome, it should be illegal
+            Plug 'tpope/vim-fugitive'
+
+			" Movement on crack
+			Plug 'easymotion/vim-easymotion'
+
+			" Delete buffers and close files without closing your windows or messing up your layout
+			Plug 'moll/vim-bbye'
+
+            " Add colour swatch to css definition
+            Plug 'ap/vim-css-color'
+
+            " show colours
+            Plug 'chrisbra/Colorizer'
+
+		call plug#end()
+	"}}}
+	" Plugin Configurations {{{
+		" Lightline {{{
+			let g:lightline = {
+			\ 'active': {
+			\   'left': [['mode'], ['readonly', 'filename', 'modified']],
+			\   'right': [['lineinfo'], ['filetype']]
+			\ },
+			\ 'inactive': {
+			\   'left': [['absolutepath']],
+			\   'right': [['lineinfo'], ['filetype']]
+			\ },
+			\ 'component': {
+			\   'lineinfo': '%l\%L [%p%%], %c, %n'
+			\ },
+			\ }
+		" }}}
+		" Ale {{{
+			let g:ale_linters = {
+				\  'php': ['php'],
+				\ }
+			let g:ale_lint_on_save = 1
+			let g:ale_lint_on_text_changed = 0
+		" }}}
+	" }}}
+" }}}
+
+" General {{{
+    " reload file if modified outside of vim
+    set autoread
+
+    " save buffer wehn switching
+    set autowrite
+
+    " set terminal to 256 color
+    set t_Co=256
+
+    " read config from files
+    set modeline
+
+    " number of lines to check for set commands
+    " 'modelines' 'mls'
+    set modelines=1
+
+    " faster redraw
+    " '[no]ttyfast' '[no]tf'
+    set ttyfast
+
+    " Enable filetype specific plugins
+    " 'add-plugin' 'plugin'
+    filetype plugin on
+
+    " indent based on file type syntax
+    filetype indent on
+
+	" Do smart autoindenting
+	set smartindent
+	set autoindent
+
+    " Enable syntax highlighting
+    syntax on
+
+    " Use <F11> to toggle between 'paste' and 'nopaste'
+    set pastetoggle=<F11>
+
+    " Sets how many lines of history
+    set history=100
+
+    " Change Working Directory to that of the current file
+    cmap cwd lcd %%
+    cmap cd. lcd %%
+
+    " P - whatever is yanked is automatically put in the system clipboard
+	" m - show menu bar
+	set guioptions=Pm
+
+	" The ruler shows line, column numbers
+	" and relative position of the cursor
+	set ruler
+
+	" show line numbers
+	" 'nu' 'number'
+	set number
+
+" }}}
+
+" Spaces & Tabs {{{
+    " number of spaces a tab will replace
+    " 'tabstop' 'ts'
+    set tabstop=4
+
+    " number of spaces for tab whle editing
+    " 'softtabstop' 'sts'
+    set softtabstop=4
+
+    " expand tabs to spaces in IM
+    " '[no]expandtab' '[no]et'
+    set expandtab
+
+    " smart tabulation and backspace
+    set smarttab
+
+    " count spaces for indentation (<<,>>)
+    " 'shiftwidth' 'sw'
+    set shiftwidth=4
+
+    " allow backspacing over everything
+    set bs=indent,eol,start
+
+    " Prevents inserting two spaces after punctuation on a join
+    set nojoinspaces
+
+    " toggle folds with spacebar
+    nmap <SPACE> za
+
+    " Create Blank Newlines and stay in Normal mode
+    nmap <silent> zj o<Esc>
+    nmap <silent> zk O<Esc>
+
+    " Visual shifting (does not exit Visual mode)
+    vmap < <gv
+    vmap > >gv
+" }}}
+
+" {{{ Explorer settings
+	" netrw
+	let g:netrw_banner       = 0
+	let g:netrw_keepdir      = 0
+	let g:netrw_liststyle    = 1 " or 3
+	let g:netrw_sort_options = 'i'
+
+	"  Open files in a
+	" 1 -new horizontal split, 2 - new vertical split, 3 - new tab, 4 - previous window
+	let g:netrw_browse_split = 4
+
+	" Set the width of the directory explorer
+	let g:netrw_winsize = 25
+
+	" Open it at startup if no argument was specified ($ vim):
+	"autocmd VimEnter * if !argc() | Explore | endif
+
+	" Open it only when the specified argument is a directory ($ vim /tmp):
+	autocmd VimEnter * if isdirectory(expand('<afile>')) | Explore | endif
+" }}}
+
+" Color, Fonts, & Encoding {{{
+	" display characters
+	" 'listchars' 'lcs'
+	if &encoding == "utf-8"
+        exe "set listchars=eol:\u00ac,nbsp:\u2423,conceal:\u22ef,tab:\u25b8\u2014,precedes:\u2026,extends:\u2026"
+	else
+        set listchars=eol:$,tab:>-,extends:>,precedes:<,conceal:+
+	endif
+
+	" show command in last line of screen
+	"  '[no]showcmd' '[no]sc'
+	set showcmd
+
+	" Insert, Replace or Visual mode put a message on the last line.
+	" '[no]showmode' '[no]smd'
+	set showmode
+
+	" highlight active line
+	"  '[no]cursorline' '[no]cul'
+	set nocursorline
+
+	" backround style
+    " 'background' 'bg'
+    set background=dark
+
+    "colorscheme
+    colorscheme molokai
+
+    " unix as default filetype
+    set ffs=unix,dos,mac
+
+    " utf-8
+    " 'encoding' 'enc' 'e543'
+    set encoding=utf-8
+
+    " Hide buffers instead of unloading them
+    " If we unload a buffer it means it's local history/undo stack
+    " will be gone if we switch buffers
+    set hidden
+" }}}
+
+" Leader / Maps {{{
+    " set map leader globally
+    let mapleader = ","
+    let g:mapleader = ","
+    noremap \ ,
+
+    " escape from insert and visual mode
+    imap jk <ESC>
+
+    " ,c - copy
+
+    " ,ee - edit .vimrc in a vertical split
+    nmap <leader>ee :vsplit $MYVIMRC<CR>
+
+    " ,e[w|s|v|t] -
+    cmap %% <C-R>=fnameescape(expand('%:p:h')).'/'<CR>
+    " Edit files pinting to current orkiing dir
+    nmap <leader>ew :e %%
+    nmap <leader>es :sp %%
+    nmap <leader>ev :vsp %%
+    nmap <leader>et :tabe %%
+
+    " ,f - Highlight current line and current column
+    nmap <leader>f :set cursorline! cursorcolumn!<CR>
+
+    " ,ln - toggle line number format
+    nmap <leader>ln :setlocal relativenumber!<CR>
+
+    " ,q - close the current buffer
+    nmap <leader>q :Bdelete<CR>
+
+    " ,Q -close the current window
+    nmap <leader>Q <C-w>c
+
+    " ,ss - toggle spellcheck
+    nmap <leader>ss :set spell!<CR>
+
+    " ,u
+    " Allow gf to work with PHP namespaced classes.
+    set includeexpr=substitute(v:fname,'\\\','/','g')
+    set suffixesadd+=.php
+
+    " ,p - paste
+    map <leader>p "*p
+
+    " ,w - fast saving
+    nmap <leader>w :w!<CR>
+    vmap <Leader>w <Esc>:w<CR>
+
+    " ,y - copy
+    map <leader>y "*y
+
+    " ,<TAB> - toggle whitespace visibility
+    nmap <leader><TAB> :set list!<CR>
+
+    " ,<SPACE> - enable and disable search highlighting
+    nmap <leader><SPACE> :set hlsearch!<CR>
+
+    " ,W - clear trailing whitespace
+    nmap <leader>W :%s/\s\+$//<CR><C-o>
+
+    " Remove all trailing whitespace by pressing F5
+    nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
+
+" }}}
+
+" UI & Layout {{{
+    " Show cursorline for the active buffer
+    " Hide cursorline for inactive buffers
+	augroup CursorLine
+		au!
+		au WinLeave * setlocal nocursorline
+		au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+	augroup End
+
+	" Remap vIM 0 to first non-blank character
+    nmap 0 ^
+
+    " Select whole buffer
+    nmap vaa ggvGg_
+
+    " Yank from the cursor to the end of the line, to be consistent with C and D.
+    nmap Y y$
+
+    " Disable sounds on errors
+    set noerrorbells
+    set novisualbell
+    set t_vb=
+    set tm=500
+
+    " characters that can be deleted in insert mode
+    set backspace=indent,eol,start
+
+    " Keep 3 lines below and above the cursor
+    set scrolloff=3
+
+    " keep 3 lines to the left and right of the screen, if 'nowrap' is set
+    set sidescrolloff=3
+
+    " allows all operations to work with system clipboard
+    set clipboard=unnamed
+
+    " set spellcheck language
+    set spelllang=en_ca
+
+    " Allow using the repeat operator with a visual selection (!)
+    vmap . :normal .<CR>
+
+    " Disable mouse control I use console vIM
+    set mouse=
+
+    " Uppercase typed word from insert mode
+    imap <C-u> <esc>mzgUiw`za
+" }}}
+
+" Status Line {{{
+    " influences when the last window will have a status line:
+    " 0: never, 1: at least two windows, 2: always
+    set laststatus=2
+    "set statusline=%F%m%r%h%w[%L][%{&ff}]%y[%p%%][%04l,%04v]
+    "               | | | | |  |    |     |   |     |    |
+    "               | | | | |  |    |     |   |     |    +-- current column
+    "               | | | | |  |    |     |   |     +-- current line
+    "               | | | | |  |    |     |   +-- current % into file
+    "               | | | | |  |    |     +-- current syntax in square brackets
+    "               | | | | |  |    +-- current fileformat
+    "               | | | | |  +-- number of lines
+    "               | | | | +-- preview flag in square brackets
+    "               | | | +-- help flag in square brackets
+    "               | | +-- readonly flag in square brackets
+    "               | +-- rodified flag in square brackets
+    "               +-- full path to file in the buffer
+" }}}
+
+" Searching {{{
+	" Set WiLd menu for auto-completion
+	" invoke command completion when willdchar is used (<tab>)
+	" 'wildmenu' 'wmnu' 'nowildmenu' 'nowmnu'
+	set wildmenu
+
+	" Multiple match, list all matches and complete till longest common string\
+	"  completion mode used for the character specified with 'wildchar'
+	" 'wildmode' 'wim'
+	set wildmode=list:longest,full
+
+	" Don't offer to open certain files/directories
+	" ignore image, temp, vcs, and compiled files
+	set wildignore+=*.bmp,*.png,*.gif,*.jpg,*.ico,*~,*.git
+	set wildignore+=*.pdf,*.psd
+
+	" briefly higlight and jump to matching parenthesis
+	" '[no]showmatch' '[no]sm'
+	set showmatch
+	set matchpairs=(:),{:},[:]
+
+	" turns off vIM’s crazy default regex characters
+  nmap / /\v
+  vmap / /\v
+
+  " type S, then type what you're looking for, a /, and what to replace it with
+  nmap S :%s//g<LEFT><LEFT>
+  vmap S :s//g<LEFT><LEFT>
+
+  " case of normal letters is ignored
+  " 'ignorecase'
+  set ignorecase
+
+  " override 'ignorecase' option if the search contains upper case characters.
+  " '[no]smartcase' '[no]scs'
+  set smartcase
+
+  " applies substitutions globally on lines
+  " '[no]gdefault' '[no]gd'
+  set gdefault
+
+  " shows patter as typed so far
+  " '[no]incsearch' '[no]is'
+  set incsearch
+
+  "highlight previous search matches
+  " '[no]hlsearch' '[no]hls'
+  set hlsearch
+
+  " Searches the current directory as well as subdirectories with commands like :find, :grep, etc.
+  set path=.,**
+
+  " clear highlighted matches
+  "nmap <leader><space> :noh<cr>
+
+	" Make n always search forward
+	" Make N always search backward
+	nnoremap <expr> n 'Nn'[v:searchforward]
+	nnoremap <expr> N 'nN'[v:searchforward]
+
+    " jump to matching bracket
+    nmap <tab> %
+    vmap <tab> %
+
+    " make it so that going to the next one in a search will center on the line it's found in.
+    map N Nzz
+    map n nzz
+" }}}
+
+" Windows Navigation {{{
+    "  vsplit window will put the new window right of the current one
+    " '[no]splitright' '[no]spr'
+    set splitright
+
+    "  split window will put the new window above the current one
+    "  '[no]splitbelow' '[no]sb'
+    set splitbelow
+
+    " ,hljk - move between windows
+    nmap <leader>h <C-w>h
+    nmap <leader>l <C-w>l
+    nmap <leader>j <C-w>j
+    nmap <leader>k <C-w>k
+
+    " New split vertical
+    nmap <leader>wv <C-w>v
+
+    " New split horizontal
+    nmap <leader>ws <C-w>s
+
+    " Vertical window creation
+    nmap <leader>wh :topleft vnew<cr>
+    nmap <leader>wl :botright vnew<cr>
+    nmap <leader>bh :leftabove vnew<cr>
+    nmap <leader>bl :rightbelow vnew<cr>
+
+    " Horizontal window creation
+    nmap <leader>wk :topleft new<cr>
+    nmap <leader>wj :botright new<cr>
+    nmap <leader>bk :leftabove new<cr>
+    nmap <leader>bj :rightbelow new<cr>
+
+    " Cycle through windows
+    nmap <leader>ww <C-w><C-w>
+
+    nnoremap <silent> + :exe "resize " . (winheight(0) * 3/2)<CR>
+    nnoremap <silent> - :exe "resize " . (winheight(0) * 2/3)<CR>
+" }}}
+
+" Movements {{{
+    " move display line not linewise
+    nmap j gj
+    nmap k gk
+
+    " use <TAB> to move to matching bracket
+    nmap <TAB> %
+    vmap <TAB> %
+
+	" remove error keys for movement
+	map <Left> :echo "no!"<cr>
+	map <Right> :echo "no!"<cr>
+	map <Up> :echo "no!"<cr>
+	map <Down> :echo "no!"<cr>
+" }}}
+
+" Backup & Files {{{
+    " viminfo file - remember settings between sessions
+    "set viminfo=%,<250,'50,/50,:100,h,f1,n~/.vim/viminfo
+    "            |  |    |   |   |   |  |     |
+    "            |  |    |   |   |   |  |     |
+    "            |  |    |   |   |   |  |     |
+    "            |  |    |   |   |   |  |     |
+    "            |  |    |   |   |   |  |     +-- name of the viminfo file
+    "            |  |    |   |   |   |  +-- file marks ('0 to '9, 'A to 'Z) are stored
+    "            |  |    |   |   |   +-- disable the effect of 'hlsearch' when loading the viminfo
+    "            |  |    |   |   +-- maximum number of items in the command-line history
+    "            |  |    |   +-- max number of items in the search pattern history
+    "            |  |    +-- max number of marks to save for previously edited files
+    "            |  +-- max lines saved for each register
+    "            +-- save/restore buffer list
+
+
+    " backup files, if folder exist..create file (reverse logic nested)
+    " '[no]writebackup' '[no]wb'
+    if isdirectory($HOME . '/.vim/backup') == 1
+        silent !mkdir -p ~/.vim/backup >/dev/null 2>&1
+        set backupdir=~/.vim/backup/
+        set backup
+        set writebackup
+    endif
+
+    " swap files, if folder exist..create file (reverse logic nested)
+    " '[no]swap' '[no]swapfile'
+    set noswapfile
+    if isdirectory($HOME . '/.vim/swap') == 1
+        silent !mkdir -p ~/.vim/swap >/dev/null 2>&1
+        set directory=~/.vim/swap//
+    endif
+
+    " Undo configuration,
+    if exists("+undofile")
+        if isdirectory($HOME . '/.vim/undo') == 1
+            silent !mkdir -p ~/.vim/undo > /dev/null 2>&1
+        endif
+        set undodir=~/.vim/undo//
+        set undofile
+    endif
+" }}}
+
+" Auto Commands {{{
+    if has('autocmd')
+        augroup reload_vimrc
+		    autocmd!
+			" Auto source .vimrc when saved
+			autocmd BufWritePost $MYVIMRC nested source $MYVIMRC
+
+			" When editing a file, always jump to the last known cursor position.
+			autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+
+            " Prevent backups from overwriting each other. The naming is weird,
+            " So the file '/home/docwhat/.vimrc' becomes '.vimrc%home%docwhat~'
+            autocmd BufWritePre * let &backupext = substitute(expand('%:p:h'), '/', '%', 'g') . '~'
+
+            " Autocomplete for php
+			autocmd FileType php set omnifunc=phpcomplete#CompletePHP
+
+			" Automatically change cwd to the directory of the file in the current buffer
+			autocmd BufEnter * silent! lcd %:p:h
+		augroup END
+    endif
+" }}}
+
+" Functions {{{
+	function! QuitWithQ()
+	    if &buftype == 'help'
+	        nnoremap <buffer> <silent> q :q<cr>
+	    endif
+	endfunction
+	autocmd FileType help exe QuitWithQ()
+
+    " project\src\Namespace\src\ClassFolder\
+    " project\tests\src\Namespace\src\Test\ClassFolder\
+	function! SwitchBetweenFiles()
+		let l:pathParts = split(expand('%:p:r'), '/')
+        let l:preceedingDirsToKeep = 3
+
+        let l:startingPath = l:pathParts[0:l:preceedingDirsToKeep]
+        let l:endPath = l:pathParts[(l:preceedingDirsToKeep + 2):]
+
+        let l:is_test = expand('%:t') =~ "Test\."
+        if l:is_test
+            let l:combinedPath = l:startingPath + ['src'] + l:endPath
+            let l:f = '/' . join(l:combinedPath, '/') . '.php'
+
+            " remove 'Test.' from filename
+            let l:file = substitute(l:f,'Test\.','.','')
+        else
+            let l:combinedPath = l:startingPath + ['tests'] + l:endPath
+            let l:file = '/' . join(l:combinedPath, '/') . 'Test.php'
+
+            if !filereadable(l:file)
+                let l:new_dir = substitute(l:file, '/\w\+\.php', '', '')
+                "exe ":!mkdir -p ".l:new_dir
+                echom l:new_dir
+            endif
+        endif
+
+        " is there already a window the wanted file?
+        let win = bufwinnr(l:file)
+
+        if l:win > 0
+            execute l:win . "wincmd w"
+        else
+            execute ":e " . l:file
+        endif
+    endfunction
+    nmap <leader>tu :call SwitchBetweenFiles()<cr>
+" }}}
+
+" Overrides {{{
+    if filereadable(expand("~/.vimrc.local"))
+        source ~/.vimrc.local
+    endif
+" }}}
+
+:echom '>^.^<'
+
+" vim:fdm=marker:ts=4:sw=4:et
