@@ -1,0 +1,80 @@
+#!/bin/bash
+
+export DISABLE_GIT_WORKTREE_EDITOR=1
+
+# Clones a GitHub repository.
+# Arguments:
+#   $1 - The GitHub owner/organization.
+#   $2 - The repository name.
+#   $3 - Optional: "clone" to clone a regular repository.
+# Returns:
+#   0 on success, 1 on failure.
+clone_repository() {
+  if [ "$#" -lt 2 ]; then
+    cat <<EOF
+Usage: clone_repository <repo_owner> <repository_name> [clone]
+Clone repository (bare) to local directory
+Parameters:
+  repo_owner:      GitHub owner/organization
+  repository_name: Name of repository
+  clone:           Clone regular repository
+EOF
+    return 1
+  fi
+
+  owner=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+  repo=$(echo "$2" | tr '[:upper:]' '[:lower:]')
+  repo_path="$HOME/dev/$repo"
+
+  if [ -d "$repo_path" ]; then
+    echo "Repository already exists"
+    cd "$repo_path" || return 1
+    git config --local remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    git fetch
+    return 0
+  fi
+
+  if [ "$#" -eq 2 ]; then
+    git clone --bare "https://github.com/$owner/$repo.git" "$repo_path"
+    cd "$repo_path" || return 1
+    git config --local remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+    git fetch
+  else
+    git clone "https://github.com/$owner/$repo.git" "$repo_path"
+  fi
+
+  return 0
+}
+
+# Manages Git worktrees.
+# Arguments:
+#   $1 - The action to perform (-l to list, -u to update, branch name to switch).
+#   $2 - The branch name (optional, used with -u).
+worktree() {
+  argtype=$1
+  # list worktrees
+  if [ "$argtype" = "-l" ]; then
+    git worktree list
+  # update worktree
+  elif [ "$argtype" = "-u" ]; then
+    branch="${2:-main}"
+    git worktree list | grep 'bare' | awk '{print $1}' | xargs -I {} git -C {} fetch
+    git worktree list --porcelain | grep -E 'worktree ' | awk '/'"main"'/ {print $2}'
+    directory=$(git worktree list --porcelain | grep -E 'worktree ' | awk '/'"${branch}"'/ {print $2}')
+    if [ -z "$directory" ]; then
+      echo "No worktree found for branch ${branch}"
+      return 1
+    fi
+    git -C "${directory}/" pull origin "${branch}"
+  else
+    # switch to worktree
+    branch="${1:-main}"
+    directory=$(git worktree list --porcelain | grep -E 'worktree ' | awk '/'"${branch}"'/ {print; exit}' | cut -d ' ' -f2-)
+    cd "${directory}" || return
+  fi
+}
+
+alias g='git'
+alias git='source git-worktree-wrapper.sh'
+alias clone='clone_repository'
+alias wt='worktree'

@@ -1,0 +1,75 @@
+#!/bin/bash
+
+alias raap='aws-run_against_all_profiles'
+
+# Get instance id by name
+get_instance_id_by_name () {
+  instanceName=$1
+  instanceId=$(aws ec2 describe-instances --filter "Name=tag:Name,Values=\"$instanceName\"" --query "Reservations[].Instances[?State.Name == 'running'].InstanceId[]" --output text)
+  echo "$instanceId"
+}
+
+# Get instance id(s)
+aws-get_instance () {
+  unameOut=$(uname -s)
+  case "${unameOut}" in
+    Linux*) readarray -t instanceArray <<< "$1";;
+    Darwin*) instanceArray=("${(@f)$("$1")}");;
+  esac
+
+  instances=""
+  for instanceIdentifier in "${instanceArray[@]}"
+  do
+    if [ "i-" = "${instanceIdentifier:0:2}" ]; then
+			instance_id=$(aws ec2 describe-instances --instance-ids "$instanceIdentifier" --query "Reservations[].Instances[?State.Name == 'running'].InstanceId[]" --output text)
+      instances+="$instance_id "
+    else
+      iid=$(get_instance_id_by_name "$instanceIdentifier")
+      instances+="$iid "
+    fi
+  done
+  echo "$instances"
+}
+
+
+aws-run_against_all_profiles() {
+  if [ -z "$1" ] || [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+    echo "\
+Usage: run_against_all_profiles <command> <filter>
+Example:
+  aws-run_against_all_profiles \"aws ec2 describe-vpcs --query 'Vpcs[*][CidrBlock, OwnerId]' --output table\" \"fail how\"
+  aws-run_against_all_profiles \"aws rds describe-db-instances --query 'DBInstances[*].[DBInstanceIdentifier,Engine,EngineVersion,DBClusterIdentifier]' --output table\" ninja
+  aws-run_against_all_profiles \"for user in \$(aws iam list-users --output text | awk \"{ print \$NF }\"); do aws iam list-access-keys --user \$user --output text; done;\" \"red coffee maison\""
+  else
+    for profile in $(list_aws_profiles "$@");
+    do
+      [ -n "$2" ] && grep -q "$profile" <<< "$2" || continue
+      aws-profile_switcher "$profile"
+      echo "$profile"
+      command=${1/'#ENV'/$profile}
+
+      # this is for running aws_ssm_command (x)
+      # it parses the command for instance names
+      # and replace them with the instance id
+      IFS=', ' read -r -a co <<< "$command"
+      if [ "${co[0]}" = 'x' ] || [ "${co[0]}" = 'aws_ssm_command' ]; then
+        inst=$(aws-get_instance "${co[1]}")
+        command=${command/${co[1]}/$inst}
+      fi
+
+      eval "$command"
+    done
+  fi
+}
+
+# List all AWS profiles in configuration
+list_aws_profiles () {
+  # out=$(grep "^\[.*\]" "$HOME/.aws/config" | sed 's/\[//g;s/\]//g' | cut -d ' ' -f 2)
+  out=$(grep 'profile' "$HOME/.aws/config" | awk '{ print substr($2,1,length($2)-1) }')
+  if [ -n "$1" ]; then
+    local -n input_ref=$1
+    input_ref=$out
+  else
+    echo "$input_ref"
+  fi
+}
