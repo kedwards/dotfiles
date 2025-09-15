@@ -1,0 +1,77 @@
+setopt AUTO_PUSHD           # Push the current directory visited on the stack.
+setopt PUSHD_IGNORE_DUPS    # Do not store duplicates in the stack.
+setopt PUSHD_SILENT         # Do not print the directory stack after pushd or popd.
+
+# set vi mode
+bindkey -v
+
+# switch to command mode with jj
+bindkey '^j' vi-cmd-mode
+
+# `v` is already mapped to visual mode, so we need to use a different key to
+# open Vim
+bindkey -M vicmd "^V" edit-command-line
+
+# Make Vi mode transitions faster (KEYTIMEOUT is in hundredths of a second)
+export KEYTIMEOUT=1
+
+zmodload zsh/complist
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
+
+# edit you command line
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey -M vicmd v edit-command-line
+
+# Function to update Starship prompt character based on vi-mode
+function zle-line-init zle-keymap-select {
+  case $KEYMAP in
+    vicmd)  STARSHIP_VI_MODE=" " ;; # Red for command mode
+    viins|main) STARSHIP_VI_MODE=" " ;; # Green for insert mode
+  esac
+  export STARSHIP_VI_MODE
+  # zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
+
+# vi-mode text objects
+autoload -Uz select-bracketed select-quoted
+zle -N select-quoted
+zle -N select-bracketed
+for km in viopp visual; do
+  bindkey -M $km -- '-' vi-up-line-or-history
+  for c in {a,i}${(s..)^:-\'\"\`\|,./:;=+@}; do
+    bindkey -M $km $c select-quoted
+  done
+  for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+    bindkey -M $km $c select-bracketed
+  done
+done
+
+# surround
+autoload -Uz surround
+zle -N delete-surround surround
+zle -N add-surround surround
+zle -N change-surround surround
+bindkey -M vicmd cs change-surround
+bindkey -M vicmd ds delete-surround
+bindkey -M vicmd ys add-surround
+bindkey -M visual S add-surround
+
+alias d='dirs -v'
+for index ({1..9}) alias "$index"="cd +${index}"; unset index
+
+# sysinit: load custom profile settings
+if [ -d "$HOME/.profile.d" ]; then
+  for profile_file in $HOME/.profile.d/*; do
+    if [ -f "$profile_file" ]; then
+      source "$profile_file"
+    fi
+    unset profile_file
+  done
+fi
