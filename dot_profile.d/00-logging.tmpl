@@ -9,6 +9,9 @@
 # Set PROFILE_LOG_FILE to redirect logs to file
 # =============================================================================
 
+# Configuration directories (consistent with _sysinit)
+PROFILE_CACHE_DIR="${PROFILE_CACHE_DIR:-$HOME/.cache}"
+
 # Color codes for different log levels (with readonly check)
 if [[ -z "${LOG_COLOR_INFO:-}" ]]; then
   readonly LOG_COLOR_INFO="\033[0;32m"    # Green
@@ -16,7 +19,7 @@ if [[ -z "${LOG_COLOR_INFO:-}" ]]; then
   readonly LOG_COLOR_ERROR="\033[0;31m"   # Red
   readonly LOG_COLOR_DEBUG="\033[0;36m"   # Cyan
   readonly LOG_COLOR_RESET="\033[0m"      # Reset
-  readonly LOG_FILE="${PROFILE_LOG_FILE:-$HOME/.cache/profile-debug.log}"
+  readonly LOG_FILE="${PROFILE_LOG_FILE:-$PROFILE_CACHE_DIR/profile-debug.log}"
 fi
 
 # Ensure log directory exists if logging to file

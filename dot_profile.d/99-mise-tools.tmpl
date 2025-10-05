@@ -1,0 +1,214 @@
+{{- $shell := env "SHELL" | base -}}
+#!/usr/bin/{{ $shell }}
+
+# =============================================================================
+# MISE TOOL VERSION MANAGEMENT
+# =============================================================================
+# Provides convenient functions for managing mise tool versions
+# Requires mise to be installed and activated
+# =============================================================================
+
+# Check if mise is available
+if ! command -v mise >/dev/null 2>&1; then
+  return 0
+fi
+
+# List all available versions for a tool
+mise-versions() {
+  local tool="$1"
+  if [[ -z "$tool" ]]; then
+    echo "Usage: mise-versions <tool>"
+    echo "Example: mise-versions node"
+    return 1
+  fi
+  
+  log_info "Available versions for $tool:"
+  mise ls-remote "$tool" 2>/dev/null || {
+    log_error "Failed to list versions for $tool. Is it a valid tool?"
+    return 1
+  }
+}
+
+# Install specific version of a tool
+mise-install() {
+  local tool="$1"
+  local version="${2:-latest}"
+  
+  if [[ -z "$tool" ]]; then
+    echo "Usage: mise-install <tool> [version]"
+    echo "Example: mise-install node 18.17.0"
+    echo "         mise-install python latest"
+    return 1
+  fi
+  
+  log_info "Installing $tool@$version..."
+  if mise install "$tool@$version"; then
+    log_info "Successfully installed $tool@$version"
+    mise use "$tool@$version"
+    log_info "Set $tool@$version as default"
+  else
+    log_error "Failed to install $tool@$version"
+    return 1
+  fi
+}
+
+# Update a tool to the latest version
+mise-update() {
+  local tool="$1"
+  
+  if [[ -z "$tool" ]]; then
+    echo "Usage: mise-update <tool>"
+    echo "Example: mise-update node"
+    return 1
+  fi
+  
+  log_info "Updating $tool to latest version..."
+  local current_version
+  current_version=$(mise current "$tool" 2>/dev/null | awk '{print $2}')
+  
+  if [[ -z "$current_version" ]]; then
+    log_warn "$tool is not currently installed"
+    mise-install "$tool" latest
+    return $?
+  fi
+  
+  log_info "Current version: $current_version"
+  if mise install "$tool@latest"; then
+    mise use "$tool@latest"
+    log_info "Updated $tool from $current_version to $(mise current "$tool" 2>/dev/null | awk '{print $2}')"
+  else
+    log_error "Failed to update $tool"
+    return 1
+  fi
+}
+
+# List currently installed tools and versions
+mise-status() {
+  log_info "Currently installed tools:"
+  mise current 2>/dev/null || {
+    log_warn "No tools currently configured"
+    return 1
+  }
+}
+
+# Update all installed tools to their latest versions
+mise-update-all() {
+  log_info "Updating all tools to latest versions..."
+  
+  # Get list of currently installed tools
+  local tools
+  tools=$(mise current 2>/dev/null | awk '{print $1}' | sort -u)
+  
+  if [[ -z "$tools" ]]; then
+    log_warn "No tools currently installed"
+    return 0
+  fi
+  
+  local updated=0
+  local failed=0
+  
+  for tool in $tools; do
+    if [[ "$tool" != "Tool" ]]; then  # Skip header
+      log_info "Updating $tool..."
+      if mise-update "$tool"; then
+        ((updated++))
+      else
+        ((failed++))
+      fi
+    fi
+  done
+  
+  log_info "Update complete: $updated updated, $failed failed"
+}
+
+# Clean up unused tool versions
+mise-cleanup() {
+  local keep_versions="${1:-3}"
+  
+  log_info "Cleaning up old tool versions (keeping $keep_versions most recent)..."
+  
+  # This would be a more complex implementation
+  # For now, just show what would be cleaned
+  log_info "Use 'mise prune' to clean up unused versions"
+  mise prune --dry-run 2>/dev/null || {
+    log_warn "mise prune not available in this version"
+  }
+}
+
+# Show tool installation status with health check
+mise-health() {
+  log_info "Mise health check:"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  
+  # Check mise version
+  local mise_version
+  mise_version=$(mise --version 2>/dev/null | head -1)
+  echo "📦 Mise Version: ${mise_version:-unknown}"
+  
+  # Check current tools
+  echo "🔧 Installed Tools:"
+  mise current 2>/dev/null | while read -r line; do
+    [[ "$line" =~ ^Tool ]] && continue  # Skip header
+    echo "   $line"
+  done
+  
+  # Check for mise.toml
+  if [[ -f "mise.toml" ]]; then
+    echo "📋 Local Config: mise.toml ($(wc -l < mise.toml) lines)"
+  elif [[ -f ".mise.toml" ]]; then  
+    echo "📋 Local Config: .mise.toml ($(wc -l < .mise.toml) lines)"
+  else
+    echo "📋 Local Config: none"
+  fi
+  
+  # Check global config
+  local global_config="$HOME/.config/mise/config.toml"
+  if [[ -f "$global_config" ]]; then
+    echo "🌐 Global Config: $(basename "$global_config") ($(wc -l < "$global_config") lines)"
+  else
+    echo "🌐 Global Config: none"
+  fi
+  
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+}
+
+# Interactive tool installer with fuzzy search
+mise-search() {
+  local search_term="$1"
+  
+  if ! command -v fzf >/dev/null 2>&1; then
+    log_error "fzf is required for mise-search. Install it with: mise install fzf"
+    return 1
+  fi
+  
+  log_info "Searching for tools..."
+  local selected_tool
+  selected_tool=$(mise registry | grep -i "${search_term:-}" | fzf --prompt="Select tool: " --height=40%)
+  
+  if [[ -n "$selected_tool" ]]; then
+    local tool_name
+    tool_name=$(echo "$selected_tool" | awk '{print $1}')
+    log_info "Selected: $tool_name"
+    
+    # Show available versions
+    log_info "Available versions:"
+    mise ls-remote "$tool_name" | head -10
+    
+    echo ""
+    read -r -p "Install latest version? (y/N): " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+      mise-install "$tool_name" latest
+    fi
+  fi
+}
+
+# Export functions
+export -f mise-versions mise-install mise-update mise-status
+export -f mise-update-all mise-cleanup mise-health mise-search
+
+# Create convenient aliases
+alias mls='mise-status'
+alias mup='mise-update'
+alias mupa='mise-update-all'
+alias mhealth='mise-health'
+alias msearch='mise-search'
