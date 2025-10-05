@@ -1,0 +1,392 @@
+{{- $shell := env "SHELL" | base -}}
+#!/usr/bin/{{ $shell }}
+
+# System initialization for {{ $shell }}
+
+# Enable vi mode
+{{- if eq $shell "bash" }}
+set -o vi
+{{- else if eq $shell "zsh" }}
+bindkey -v
+{{- end }}
+export EDITOR=nvims
+
+# Shell type for compatibility
+SHELL_TYPE="{{ $shell }}"
+
+# Shell-specific completion setup
+{{- if eq $shell "bash" }}
+# === BASH COMPLETION SETUP ===
+[ -f /etc/bash_completion ] && source /etc/bash_completion
+mkdir -p "$HOME/.local/share/bash-completion/completions"
+
+{{- else if eq $shell "zsh" }}
+# === ZSH COMPLETION SETUP ===
+autoload bashcompinit && bashcompinit
+autoload -Uz compinit && compinit
+
+{{- end }}
+
+# add to path
+path_add() {
+  case ":$PATH:" in
+  *":$1:"*) ;; # already in PATH
+  *) PATH="$1:$PATH" ;;
+  esac
+}
+
+# users local bin directory
+path_add "$HOME/.local/bin"
+
+# bash-my-aws (works in both bash and zsh)
+if [ -d "${BMA_HOME:-$HOME/.bash-my-aws}" ]; then
+  path_add "${BMA_HOME:-$HOME/.bash-my-aws}/bin"
+  source "${BMA_HOME:-$HOME/.bash-my-aws}/aliases"
+{{- if eq $shell "bash" }}
+  source "${BMA_HOME:-$HOME/.bash-my-aws}/bash_completion.sh"
+{{- else if eq $shell "zsh" }}
+  # ZSH completion setup for bash-my-aws
+  autoload -U +X compinit && compinit
+  autoload -U +X bashcompinit && bashcompinit
+{{- end }}
+fi
+
+# docker
+if command -v docker &>/dev/null; then
+{{- if eq $shell "bash" }}
+  # === BASH DOCKER COMPLETION ===
+  docker completion bash >"$HOME/.local/share/bash-completion/completions/docker"
+
+{{- else if eq $shell "zsh" }}
+  # === ZSH DOCKER COMPLETION ===
+  FPATH="$HOME/.docker/completions:$FPATH"
+  mkdir -p "$HOME/.docker/completions"
+  docker completion zsh >"$HOME/.docker/completions/_docker"
+
+{{- end }}
+
+  # Returns the full registry URL (with trailing slash) based on the given key.
+  # Arguments:
+  #   $1 - Registry alias or URL (e.g., "rch", "dockerhub", or a custom URL)
+  get_registry() {
+    local registry="$1"
+
+    case "$registry" in
+    "" | "dockerhub")
+      echo "" # dockerhub = no registry prefix
+      ;;
+    "rch")
+      aws-profile_switcher ps
+      echo "003756058538.dkr.ecr.us-east-1.amazonaws.com/"
+      ;;
+    *)
+      # Assume it's already a registry hostname
+      echo "${registry%/}/"
+      ;;
+    esac
+  }
+
+  # Pulls or pushes a Docker image.
+  # Arguments:
+  #   $1 - The action to perform (pull or push).
+  #   $2 - The image name and tag (e.g., image_name:image_tag).
+  #   $3 - The registry (default: dockerhub).
+  pull_push_image() {
+    if [ $# -lt 2 ]; then
+      echo "Usage: $0 <push|pull> <image_name:image_tag> [<registry>]"
+      return 1
+    fi
+
+    local cmd="$1"
+    local image
+    image=$(echo "$2" | tr '[:upper:]' '[:lower:]')
+    local registry
+    registry=$(get_registry "${3:-dockerhub}")
+
+    docker "$cmd" "${registry}${image}"
+
+    # Reset AWS profile if we used rch
+    [[ "$3" == "rch" ]] && aws-profile_switcher -u
+  }
+
+  # Clones a Docker image by pulling it, tagging it with a new tag, and pushing it back.
+  # Arguments:
+  #   $1 - The original image name and tag (e.g., image_name:image_tag).
+  #   $2 - The new tag for the image.
+  #   $3 - The registry (default: dockerhub).
+  clone_image() {
+    if [ $# -lt 2 ]; then
+      echo "Usage: clone-image <image_name:image_tag> <new_tag> [<registry>]"
+      return 1
+    fi
+
+    local image_name tag new_tag registry
+    IFS=':' read -r image_name tag <<<"$1"
+    new_tag=$2
+    registry=$(get_registry "${3:-dockerhub}")
+
+    pull_push_image pull "$image_name:$tag" "$registry"
+    docker tag "${registry}${image_name}:${tag}" "${registry}${image_name}:${new_tag}"
+    pull_push_image push "${image_name}:${new_tag}" "$registry"
+  }
+fi
+
+# git completion setup
+if command -v git &>/dev/null; then
+  stamp_file="$HOME/.sysinit.git"
+  if [ ! -f "$stamp_file" ]; then
+{{- if eq $shell "bash" }}
+    # === BASH GIT COMPLETION ===
+    git_completion_dir="$HOME/.local/share/bash-completion/completions"
+    mkdir -p "$git_completion_dir"
+    version=$(git --version | awk '{print $3}')
+    source="https://raw.githubusercontent.com/git/git/v${version}/contrib/completion/git-completion.bash"
+    file="$git_completion_dir/git-completion.bash"
+    if [ ! -f "$file" ]; then
+      curl "$source" -o "$file"
+    fi
+
+{{- else if eq $shell "zsh" }}
+    # === ZSH GIT COMPLETION ===
+    git_completion_dir="$HOME/.zsh/completions"
+    mkdir -p "$git_completion_dir"
+    version=$(git --version | awk '{print $3}')
+    source="https://raw.githubusercontent.com/git/git/v${version}/contrib/completion/git-completion.zsh"
+    file="$git_completion_dir/_git"
+    if [ ! -f "$file" ]; then
+      curl "$source" -o "$file"
+    fi
+    # Add to fpath if not already there
+    [[ ":$FPATH:" != *":$git_completion_dir:"* ]] && FPATH="$git_completion_dir:$FPATH"
+
+{{- end }}
+    touch "$stamp_file"
+  fi
+fi
+
+# mise
+if command -v mise &>/dev/null; then
+  [[ -n "$MISE_ACTIVATED" ]] || {
+    export MISE_ACTIVATED=1
+    eval "$(mise activate "$SHELL_TYPE")"
+  }
+
+  mise_info() {
+    local tool="$1"
+    local exec_path install_path
+    exec_path=$(mise which "$tool" 2>/dev/null) || return 1
+    install_path=$(mise where "$tool" 2>/dev/null) || return 1
+    printf '%s %s\n' "$exec_path" "$install_path"
+  }
+
+  # awscli
+  if read -ra info <<<"$(mise_info awscli)" && [[ -n "${info[0]}" ]]; then
+    aws_completer_path="${info[0]%/*}/aws_completer"
+    if [[ -f "$aws_completer_path" ]]; then
+      complete -C "$aws_completer_path" aws
+    fi
+  fi
+
+  # bat
+  if read -ra info <<<"$(mise_info bat)" && [[ -n "${info[0]}" ]]; then
+    alias cat='bat'
+  fi
+
+  # eza
+  if read -ra info <<<"$(mise_info eza)" && [[ -n "${info[0]}" ]]; then
+    alias l='eza -laF  --color=always'
+    alias ld='eza -lD'
+    alias lf='eza -alf --color=always'
+    alias ll='eza -al --group-directories-first'
+    alias lt='eza -al --sort=modified'
+  fi
+
+  # fzf
+  if read -ra info <<<"$(mise_info fzf)" && [[ -n "${info[0]}" ]]; then
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
+    export FZF_DEFAULT_OPTS='--no-mouse --height 50% --layout=reverse --multi --inline-info --border'
+{{- if eq $shell "bash" }}
+    # === BASH FZF INTEGRATION ===
+    eval "$(fzf --bash)"
+{{- else if eq $shell "zsh" }}
+    # === ZSH FZF INTEGRATION ===
+    source <(fzf --zsh)
+{{- end }}
+  fi
+
+  # golang
+  if read -ra info <<<"$(mise_info go)" && [[ -n "${info[0]}" ]]; then
+    export GOPATH="${info[1]}"
+    path_add "$GOPATH"
+    alias coverage='go test -coverprofile=coverage.out && go tool cover -html=coverage.out'
+  fi
+
+  # granted.
+  if read -ra info <<<"$(mise_info granted)" && [[ -n "${info[0]}" ]]; then
+    export GRANTED_QUIET=true
+    export GRANTED_ALIAS_CONFIGURED=true
+    alias assume='source assume'
+  fi
+
+  # kubectl
+  if read -ra info <<<"$(mise_info kubectl)" && [[ -n "${info[0]}" ]]; then
+    alias k="kubectl"
+{{- if eq $shell "bash" }}
+    # === BASH KUBECTL COMPLETION ===
+    complete -o default -F __start_kubectl k
+    source <("${info[0]}" completion bash)
+{{- else if eq $shell "zsh" }}
+    # === ZSH KUBECTL COMPLETION ===
+    source <("${info[0]}" completion zsh)
+{{- end }}
+  fi
+
+  # nvim switcher
+  if command -v nvims &>/dev/null; then
+    alias v='nvims'
+  fi
+
+  # starship
+  if read -ra info <<<"$(mise_info starship)" && [[ -n "${info[0]}" ]]; then
+    export STARSHIP_VI_MODE=" " # Default to insert mode
+{{- if eq $shell "bash" }}
+    # === BASH STARSHIP SETUP ===
+    eval -- "$(${info[0]} init bash)"
+    bind 'set show-mode-in-prompt on'
+    bind 'set vi-cmd-mode-string "\033[31m "'
+    bind 'set vi-ins-mode-string "\033[32m "'
+{{- else if eq $shell "zsh" }}
+    # === ZSH STARSHIP SETUP ===
+    eval -- "$(${info[0]} init zsh)"
+    # ZSH vi mode indicators are handled by starship automatically
+{{- end }}
+  fi
+
+  # tmux
+  if read -ra info <<<"$(mise_info tmux)" && [[ -n "${info[0]}" ]]; then
+    if [ ! -d ~/.tmux/plugins/tpm ]; then
+      mkdir -p ~/.tmux/plugins
+      git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+    fi
+
+    t() {
+      if [ -z "$TMUX" ]; then
+        attach_session=$(tmux 2>/dev/null ls -F \
+          '#{session_attached} #{?#{==:#{session_last_attached},},1,#{session_last_attached}} #{session_id}' |
+          awk '/^0/ { if ($2 > t) { t = $2; s = $3 } }; END { if (s) printf "%s", s }')
+        if [ -n "$attach_session" ]; then
+          tmux attach -t "$attach_session"
+        else
+          tmux
+        fi
+      fi
+    }
+  fi
+
+  # uv
+  if read -ra info <<<"$(mise_info uv)" && [[ -n "${info[0]}" ]]; then
+    uva() {
+      local name mise_file venv_path
+      name="${1:-$(basename "$PWD")}"
+      mise_file="mise.toml"
+      venv_path="$HOME/.venv/$name"
+
+      # Create the venv if it doesn't exist
+      if [ ! -d "$HOME/.venv/$name" ]; then
+        uv venv "$HOME/.venv/$name"
+      fi
+
+      # If mise.toml doesn't exist, create it with [env] block
+      if [ ! -f "$mise_file" ]; then
+        cat <<EOF >"$mise_file"
+[env]
+_.python.venv = "$venv_path"
+EOF
+      else
+        # Check if the [env] section exists
+        if ! grep -q "^\[env\]" "$mise_file"; then
+          # Add [env] section at the end if not present
+          {
+            echo
+            echo "[env]"
+            echo "_.python.venv = \"$venv_path\""
+          } >>"$mise_file"
+        elif grep -q "^_.python.venv" "$mise_file"; then
+          # Update the existing line
+          sed -i "s|^_.python.venv *=.*|_.python.venv = \"$venv_path\"|" "$mise_file"
+        else
+          # Append inside the [env] section
+          awk -v newline="_.python.venv = \"$venv_path\"" '
+            BEGIN { inserted = 0 }
+            {
+              print $0
+              if ($0 ~ /^\[env\]/ && !inserted) {
+                print newline
+                inserted = 1
+              }
+            }
+          ' "$mise_file" >"$mise_file.tmp" && mv "$mise_file.tmp" "$mise_file"
+        fi
+      fi
+
+      mise trust || true
+      source "$HOME/.venv/$name/bin/activate"
+    }
+  fi
+
+  # zellij
+  if read -ra info <<<"$(mise_info zellij)" && [[ -n "${info[0]}" ]]; then
+    alias z='zellij'
+    zellij_plugin_dir="$HOME/.config/zellij/plugins"
+    stamp_file="$HOME/.sysinit.zellij"
+    if [ ! -f "$stamp_file" ]; then
+      if [ ! -f "$zellij_plugin_dir/zjstatus.wasm" ]; then
+        zjstatus_version=$(curl -sL https://api.github.com/repos/dj95/zjstatus/releases/latest | jq -r ".tag_name")
+        curl -L "https://github.com/dj95/zjstatus/releases/download/${zjstatus_version}/zjstatus.wasm" -o "$zellij_plugin_dir/zjstatus.wasm"
+      fi
+      touch "$stamp_file"
+    fi
+  fi
+fi
+
+# Installs a game on Oculus Quest via adb.
+# Arguments:
+#   $1 - The path to the game directory.
+#   $2 - The package (folder) name.
+#   $3 - The APK file name.
+quest_adb_install() {
+  local game_path="$1"
+  local packagename="$2"
+  local apk_file="$3"
+
+  if [ -d "$game_path" ]; then
+    cd "$game_path" || return 1
+    adb install -g -r "$apk_file"
+    adb shell mkdir "/sdcard/Android/obb/$packagename"
+    adb push "$packagename" /sdcard/Android/obb/
+  fi
+}
+
+# Finds the public IP address using various services.
+# Arguments:
+#   $1 - The IP version (4 or 6, optional, default is 4).
+myip() {
+  services=("icanhazip.com" "ifconfig.me" "ident.me" "ipecho.net/plain")
+
+  case $1 in
+  4) type=-4 ;;
+  6) type=-6 ;;
+  *) type=-4 ;;
+  esac
+  while true; do
+    service=$(printf "%s\n" "${services[@]}" | shuf -n1)
+    ip=$(curl $type "$service" 2>/dev/null)
+    if [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "$service - $ip"
+      break
+    fi
+    ((random++))
+  done
+}
