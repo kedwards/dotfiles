@@ -17,12 +17,13 @@ if command -v docker &>/dev/null; then
   alias dra='docker rm $(docker ps -a -q)'
 
   # get container ip
-  alias dip="docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
+  alias dip="docker inspect -f '{{`{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`}}'"
 
   # remove images
   alias dri='docker rmi $(docker images -q)'
 fi
 
+{{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
 # pacman
 if command -v pacman &>/dev/null; then
   # install package
@@ -73,3 +74,4 @@ if command -v yay &>/dev/null; then
   alias yayrc='yay -Sc'
   alias yayls="yay -Qe"
 fi
+{{- end }}
