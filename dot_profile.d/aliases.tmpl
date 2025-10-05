@@ -7,20 +7,20 @@ if command -v docker &>/dev/null; then
   # dive into the container
   alias dive="docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
 
-  # remove dangling containers
-  alias drd='docker rmi -f $(docker images -f "dangling=true" -q)'
+  # remove dangling containers (safe version)
+  alias drd='_drd() { local imgs=$(docker images -f "dangling=true" -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi -f $imgs || echo "No dangling images to remove"; }; _drd'
 
-  # stop all containers
-  alias dsa='docker stop $(docker ps -a -q)'
+  # stop all containers (safe version)
+  alias dsa='_dsa() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker stop $containers || echo "No containers to stop"; }; _dsa'
 
-  # remove all containers
-  alias dra='docker rm $(docker ps -a -q)'
+  # remove all containers (safe version)
+  alias dra='_dra() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker rm $containers || echo "No containers to remove"; }; _dra'
 
-  # get container ip
-  alias dip="docker inspect -f '{{`{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`}}'"
+  # get container ip (requires container name/id as argument)
+  alias dip='_dip() { [[ $# -eq 1 ]] && docker inspect -f "{{`{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`}}" "$1" 2>/dev/null || echo "Usage: dip <container_name_or_id>"; }; _dip'
 
-  # remove images
-  alias dri='docker rmi $(docker images -q)'
+  # remove images (safe version)
+  alias dri='_dri() { local imgs=$(docker images -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi $imgs || echo "No images to remove"; }; _dri'
 fi
 
 {{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}

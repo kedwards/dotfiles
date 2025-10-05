@@ -161,7 +161,8 @@ compdef _profile_switcher_completer aws-profile_switcher p
 
 # Compatibility aliases for shorter function names
 alias p='aws-profile_switcher'
-alias ps='aws-profile_switcher'
+# Note: 'ps' alias removed to avoid conflict with system 'ps' command
+# Use 'p' or 'aws-ps' instead
 alias aws-ps='aws-profile_switcher'
 alias aws-whoami='aws-whoami'
 alias ssm='aws-ssm_connect'
@@ -556,8 +557,8 @@ EOF
   fi
 }
 
-# Define alias at the end so it's recognized
-alias p='aws-profile_switcher'
-alias c='aws-ssm_connect'
-alias x='aws-ssm_execute'
+# Define additional aliases at the end so they're recognized
+# Note: Removed single-letter aliases 'c' and 'x' to avoid conflicts
+# Use 'ssm' for aws-ssm_connect and 'aws-x' for aws-ssm_execute
+alias aws-x='aws-ssm_execute'
 alias rae='aws-run_against_environement'

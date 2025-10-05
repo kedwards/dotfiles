@@ -6,6 +6,9 @@
 
 export DISABLE_GIT_WORKTREE_EDITOR=1
 
+# Configure development directory (customizable via environment variable)
+GIT_DEV_DIR="${GIT_DEV_DIR:-$HOME/dev}"
+
 # Clones a GitHub repository.
 # Arguments:
 #   $1 - The GitHub owner/organization.
@@ -14,6 +17,12 @@ export DISABLE_GIT_WORKTREE_EDITOR=1
 # Returns:
 #   0 on success, 1 on failure.
 clone_repository() {
+  # Check for git availability
+  if ! command -v git >/dev/null 2>&1; then
+    echo "Error: git is not installed or not in PATH"
+    return 1
+  fi
+
   if [ "$#" -lt 2 ]; then
     cat <<EOF
 Usage: clone_repository <repo_owner> <repository_name> [clone]
@@ -22,39 +31,81 @@ Parameters:
   repo_owner:      GitHub owner/organization
   repository_name: Name of repository
   clone:           Clone regular repository
+
+Environment Variables:
+  GIT_DEV_DIR:     Base directory for repositories (default: \$HOME/dev)
 EOF
     return 1
   fi
 
   owner=$(echo "$1" | tr '[:upper:]' '[:lower:]')
   repo=$(echo "$2" | tr '[:upper:]' '[:lower:]')
-  repo_path="$HOME/dev/$repo"
+  repo_path="$GIT_DEV_DIR/$repo"
 
-  # Ensure dev directory exists
-  if [ ! -d "$HOME/dev" ]; then
-    mkdir -p "$HOME/dev" || {
-      echo "Failed to create dev directory: $HOME/dev"
+  # Validate inputs
+  if [ -z "$owner" ] || [ -z "$repo" ]; then
+    echo "Error: Owner and repository name cannot be empty"
+    return 1
+  fi
+
+  # Ensure dev directory exists and is writable
+  if [ ! -d "$GIT_DEV_DIR" ]; then
+    echo "Creating development directory: $GIT_DEV_DIR"
+    if ! mkdir -p "$GIT_DEV_DIR" 2>/dev/null; then
+      echo "Error: Failed to create development directory: $GIT_DEV_DIR"
+      echo "Please check permissions or set GIT_DEV_DIR to a writable location"
       return 1
-    }
+    fi
+  elif [ ! -w "$GIT_DEV_DIR" ]; then
+    echo "Error: Development directory is not writable: $GIT_DEV_DIR"
+    return 1
   fi
 
   if [ -d "$repo_path" ]; then
     echo "Repository already exists: $repo_path"
-    cd "$repo_path" || return 1
-    git config --local remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    git fetch
+    if ! cd "$repo_path" 2>/dev/null; then
+      echo "Error: Cannot access repository directory: $repo_path"
+      return 1
+    fi
+    
+    if git rev-parse --git-dir >/dev/null 2>&1; then
+      echo "Updating existing repository..."
+      git config --local remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" 2>/dev/null || true
+      if ! git fetch 2>/dev/null; then
+        echo "Warning: Failed to fetch updates (network or authentication issue)"
+        return 1
+      fi
+    else
+      echo "Error: Directory exists but is not a git repository: $repo_path"
+      return 1
+    fi
     return 0
   fi
 
+  echo "Cloning repository: $owner/$repo"
   if [ "$#" -eq 2 ]; then
-    git clone --bare "https://github.com/$owner/$repo.git" "$repo_path"
-    cd "$repo_path" || return 1
-    git config --local remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    git fetch
+    # Bare clone
+    if ! git clone --bare "https://github.com/$owner/$repo.git" "$repo_path" 2>/dev/null; then
+      echo "Error: Failed to clone repository (check network, repository exists, or authentication)"
+      return 1
+    fi
+    if ! cd "$repo_path" 2>/dev/null; then
+      echo "Error: Cannot access cloned repository: $repo_path"
+      return 1
+    fi
+    git config --local remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" 2>/dev/null || true
+    if ! git fetch 2>/dev/null; then
+      echo "Warning: Repository cloned but failed to fetch (this may be normal for bare repos)"
+    fi
   else
-    git clone "https://github.com/$owner/$repo.git" "$repo_path"
+    # Regular clone
+    if ! git clone "https://github.com/$owner/$repo.git" "$repo_path" 2>/dev/null; then
+      echo "Error: Failed to clone repository (check network, repository exists, or authentication)"
+      return 1
+    fi
   fi
 
+  echo "Successfully cloned: $repo_path"
   return 0
 }
 
@@ -63,26 +114,76 @@ EOF
 #   $1 - The action to perform (-l to list, -u to update, branch name to switch).
 #   $2 - The branch name (optional, used with -u).
 worktree() {
+  # Check for git availability
+  if ! command -v git >/dev/null 2>&1; then
+    echo "Error: git is not installed or not in PATH"
+    return 1
+  fi
+
+  # Check if we're in a git repository
+  if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    echo "Error: Not in a git repository or git repository not found"
+    return 1
+  fi
+
   argtype=$1
   # list worktrees
   if [ "$argtype" = "-l" ]; then
-    git worktree list
+    if ! git worktree list 2>/dev/null; then
+      echo "Error: Failed to list worktrees"
+      return 1
+    fi
   # update worktree
   elif [ "$argtype" = "-u" ]; then
     branch="${2:-main}"
-    git worktree list | grep 'bare' | awk '{print $1}' | xargs -I {} git -C {} fetch
-    git worktree list --porcelain | grep -E 'worktree ' | awk '/'"main"'/ {print $2}'
-    directory=$(git worktree list --porcelain | grep -E 'worktree ' | awk '/'"${branch}"'/ {print $2}')
+    echo "Updating worktree for branch: $branch"
+    
+    # Fetch all bare repositories
+    if ! git worktree list 2>/dev/null | grep 'bare' | awk '{print $1}' | xargs -I {} git -C {} fetch 2>/dev/null; then
+      echo "Warning: Some repositories failed to fetch updates"
+    fi
+    
+    # Find the worktree directory for the branch
+    directory=$(git worktree list --porcelain 2>/dev/null | grep -E 'worktree ' | awk '/'"${branch}"'/ {print $2}' | head -1)
     if [ -z "$directory" ]; then
-      echo "No worktree found for branch ${branch}"
+      echo "Error: No worktree found for branch '$branch'"
+      echo "Available worktrees:"
+      git worktree list 2>/dev/null || echo "Failed to list worktrees"
       return 1
     fi
-    git -C "${directory}/" pull origin "${branch}"
+    
+    if [ ! -d "$directory" ]; then
+      echo "Error: Worktree directory does not exist: $directory"
+      return 1
+    fi
+    
+    echo "Pulling updates for branch '$branch' in: $directory"
+    if ! git -C "$directory" pull origin "$branch" 2>/dev/null; then
+      echo "Error: Failed to pull updates for branch '$branch'"
+      return 1
+    fi
+    echo "Successfully updated worktree for branch '$branch'"
   else
     # switch to worktree
     branch="${1:-main}"
-    directory=$(git worktree list --porcelain | grep -E 'worktree ' | awk '/'"${branch}"'/ {print; exit}' | cut -d ' ' -f2-)
-    cd "${directory}" || return
+    directory=$(git worktree list --porcelain 2>/dev/null | grep -E 'worktree ' | awk '/'"${branch}"'/ {print; exit}' | cut -d ' ' -f2-)
+    if [ -z "$directory" ]; then
+      echo "Error: No worktree found for branch '$branch'"
+      echo "Available worktrees:"
+      git worktree list 2>/dev/null || echo "Failed to list worktrees"
+      return 1
+    fi
+    
+    if [ ! -d "$directory" ]; then
+      echo "Error: Worktree directory does not exist: $directory"
+      return 1
+    fi
+    
+    echo "Switching to worktree: $directory"
+    if ! cd "$directory" 2>/dev/null; then
+      echo "Error: Cannot access worktree directory: $directory"
+      return 1
+    fi
   fi
 }
 
