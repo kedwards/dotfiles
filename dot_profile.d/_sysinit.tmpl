@@ -177,11 +177,14 @@ if command -v git &>/dev/null; then
   fi
 fi
 
-# mise
+# mise (prevent duplicate activation if already done in shell rc files)
 if command -v mise &>/dev/null; then
   [[ -n "$MISE_ACTIVATED" ]] || {
     export MISE_ACTIVATED=1
-    eval "$(mise activate "$SHELL_TYPE")"
+    # Only activate if not already activated (prevents duplicate calls)
+    if [[ -z "$(mise current 2>/dev/null)" ]] || [[ ! "$PATH" =~ mise ]]; then
+      eval "$(mise activate "$SHELL_TYPE")"
+    fi
   }
 
   mise_info() {

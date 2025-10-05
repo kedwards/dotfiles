@@ -1,77 +1,88 @@
 #!/bin/bash
 
+# =============================================================================
+# SHELL ALIASES
+# =============================================================================
+# This file contains shell aliases organized by category.
+# All Docker aliases include safety checks to prevent errors when no
+# containers/images exist. Arch Linux package manager aliases are conditionally
+# loaded based on the operating system.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# CORE SYSTEM ALIASES
+# -----------------------------------------------------------------------------
+
+# File listing - fallback for when eza is not available
+# (eza aliases are provided by _sysinit if available via mise)
 alias l='ls -laF'
 
-# docker
+# -----------------------------------------------------------------------------
+# DOCKER ALIASES
+# -----------------------------------------------------------------------------
+# All Docker aliases include error handling and safety checks
+
 if command -v docker &>/dev/null; then
-  # dive into the container
-  alias dive="docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
-
-  # remove dangling containers (safe version)
-  alias drd='_drd() { local imgs=$(docker images -f "dangling=true" -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi -f $imgs || echo "No dangling images to remove"; }; _drd'
-
-  # stop all containers (safe version)
-  alias dsa='_dsa() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker stop $containers || echo "No containers to stop"; }; _dsa'
-
-  # remove all containers (safe version)
-  alias dra='_dra() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker rm $containers || echo "No containers to remove"; }; _dra'
-
-  # get container ip (requires container name/id as argument)
-  alias dip='_dip() { [[ $# -eq 1 ]] && docker inspect -f "{{`{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`}}" "$1" 2>/dev/null || echo "Usage: dip <container_name_or_id>"; }; _dip'
-
-  # remove images (safe version)
-  alias dri='_dri() { local imgs=$(docker images -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi $imgs || echo "No images to remove"; }; _dri'
+  # Container Analysis
+  alias dive="docker run -ti --rm -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
+  
+  # Container Management (safe versions with error checking)
+  alias dsa='_dsa() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker stop $containers || echo "No containers to stop"; }; _dsa'  # Stop All containers
+  alias dra='_dra() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker rm $containers || echo "No containers to remove"; }; _dra'      # Remove All containers
+  
+  # Image Management (safe versions with error checking)
+  alias drd='_drd() { local imgs=$(docker images -f "dangling=true" -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi -f $imgs || echo "No dangling images to remove"; }; _drd'  # Remove Dangling images
+  alias dri='_dri() { local imgs=$(docker images -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi $imgs || echo "No images to remove"; }; _dri'                                    # Remove Images
+  
+  # Container Information
+  alias dip='_dip() { [[ $# -eq 1 ]] && docker inspect -f "{{`{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`}}" "$1" 2>/dev/null || echo "Usage: dip <container_name_or_id>"; }; _dip'  # Docker IP address
 fi
+
+
+# -----------------------------------------------------------------------------
+# ARCH LINUX PACKAGE MANAGER ALIASES
+# -----------------------------------------------------------------------------
+# Conditionally loaded for Arch Linux and EndeavourOS
 
 {{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
-# pacman
+
+# Pacman (official package manager)
 if command -v pacman &>/dev/null; then
-  # install package
-  alias paci='sudo pacman -S'
-
-  # Pacman Has Installed - what files where installed in a package
-  alias pachi='sudo pacman -Ql'
-
-  # search
-  alias pacs='sudo pacman -Ss'
-
-  # update
-  alias pacu='sudo pacman -Syu'
-
-  # remove package but not dependencies
-  alias pacr='sudo pacman -R'
-
-  # remove package with unused dependencies by other softwares
-  alias pacrr='sudo pacman -Rs'
-
-  # remove pacman cache
-  alias pacrc='sudo pacman -Sc'
-  alias pacc='sudo pacman -Sc'
-  alias paccc='sudo pacman -Scc' # empty the whole cache
+  # Package Installation & Updates
+  alias paci='sudo pacman -S'      # Install package
+  alias pacu='sudo pacman -Syu'    # Update system
+  
+  # Package Search & Information
+  alias pacs='sudo pacman -Ss'     # Search packages
+  alias pachi='sudo pacman -Ql'    # List files in package (Pacman Has Installed)
+  
+  # Package Removal
+  alias pacr='sudo pacman -R'      # Remove package (keep dependencies)
+  alias pacrr='sudo pacman -Rs'    # Remove package with unused dependencies
+  
+  # Cache Management
+  alias pacrc='sudo pacman -Sc'    # Clean package cache
+  alias pacc='sudo pacman -Sc'     # Clean package cache (alternative)
+  alias paccc='sudo pacman -Scc'   # Empty entire cache
 fi
 
-# yay
+# Yay (AUR helper)
 if command -v yay &>/dev/null; then
-  # install
-  alias yayi='yay -S'
-
-  # Yay Has Installed - what files where installed in a package
-  alias yayhi='yay -Ql'
-
-  # search
-  alias yays='yay -Ss'
-
-  # update
-  alias yayu='yay -Syu'
-
-  # remove package but not dependencies
-  alias yayr='yay -R'
-
-  # remove package with unused dependencies by other softwares
-  alias yayrr='yay -Rs'
-
-  # remove yay's cache
-  alias yayrc='yay -Sc'
-  alias yayls="yay -Qe"
+  # Package Installation & Updates  
+  alias yayi='yay -S'              # Install package
+  alias yayu='yay -Syu'            # Update system (including AUR)
+  
+  # Package Search & Information
+  alias yays='yay -Ss'             # Search packages
+  alias yayhi='yay -Ql'            # List files in package (Yay Has Installed)
+  alias yayls='yay -Qe'            # List explicitly installed packages
+  
+  # Package Removal
+  alias yayr='yay -R'              # Remove package (keep dependencies)
+  alias yayrr='yay -Rs'            # Remove package with unused dependencies
+  
+  # Cache Management
+  alias yayrc='yay -Sc'            # Clean package cache
 fi
+
 {{- end }}
