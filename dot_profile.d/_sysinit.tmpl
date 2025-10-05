@@ -341,12 +341,33 @@ EOF
     alias z='zellij'
     zellij_plugin_dir="$HOME/.config/zellij/plugins"
     stamp_file="$HOME/.sysinit.zellij"
+    
     if [ ! -f "$stamp_file" ]; then
-      if [ ! -f "$zellij_plugin_dir/zjstatus.wasm" ]; then
-        zjstatus_version=$(curl -sL https://api.github.com/repos/dj95/zjstatus/releases/latest | jq -r ".tag_name")
-        curl -L "https://github.com/dj95/zjstatus/releases/download/${zjstatus_version}/zjstatus.wasm" -o "$zellij_plugin_dir/zjstatus.wasm"
+      # Only attempt plugin download if required tools are available
+      if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then
+        if [ ! -f "$zellij_plugin_dir/zjstatus.wasm" ]; then
+          # Create plugin directory if it doesn't exist
+          if mkdir -p "$zellij_plugin_dir" 2>/dev/null; then
+            # Attempt to get latest version with timeout and error handling
+            if zjstatus_version=$(curl -sL --connect-timeout 5 --max-time 10 "https://api.github.com/repos/dj95/zjstatus/releases/latest" 2>/dev/null | jq -r ".tag_name" 2>/dev/null) && [[ -n "$zjstatus_version" && "$zjstatus_version" != "null" ]]; then
+              # Attempt to download plugin with timeout
+              if curl -L --connect-timeout 5 --max-time 30 "https://github.com/dj95/zjstatus/releases/download/${zjstatus_version}/zjstatus.wasm" -o "$zellij_plugin_dir/zjstatus.wasm" >/dev/null 2>&1; then
+                log_debug "Successfully downloaded zjstatus plugin version $zjstatus_version"
+              else
+                log_debug "Failed to download zjstatus plugin"
+              fi
+            else
+              log_debug "Failed to get zjstatus version information"
+            fi
+          else
+            log_debug "Failed to create zellij plugin directory"
+          fi
+        fi
+      else
+        log_debug "curl or jq not available, skipping zjstatus plugin download"
       fi
-      touch "$stamp_file"
+      # Always create stamp file to prevent repeated attempts
+      touch "$stamp_file" 2>/dev/null || true
     fi
   fi
 fi
