@@ -96,8 +96,8 @@ if command -v git-worktree-wrapper.sh >/dev/null 2>&1; then
   # Use alias with absolute path for reliability
   GWT_WRAPPER_PATH="$(command -v git-worktree-wrapper.sh)"
   alias git="source '$GWT_WRAPPER_PATH'"
-  echo "[DEBUG] git-worktree-wrapper enabled at $GWT_WRAPPER_PATH" >&2
+  # git-worktree-wrapper is now active
 else
   # If wrapper not available, just use regular git
-  echo "[DEBUG] git-worktree-wrapper not found, using regular git" >&2
+  :
 fi
