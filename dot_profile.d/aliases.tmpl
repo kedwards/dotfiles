@@ -4,9 +4,6 @@
 # SHELL ALIASES
 # =============================================================================
 # This file contains shell aliases organized by category.
-# All Docker aliases include safety checks to prevent errors when no
-# containers/images exist. Arch Linux package manager aliases are conditionally
-# loaded based on the operating system.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -27,25 +24,27 @@ if command -v docker &>/dev/null; then
   alias dive="docker run -ti --rm -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
   
   # Container Management (safe versions with error checking)
-  alias dsa='_dsa() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker stop $containers || echo "No containers to stop"; }; _dsa'  # Stop All containers
-  alias dra='_dra() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker rm $containers || echo "No containers to remove"; }; _dra'      # Remove All containers
+  # Stop All containers
+  alias dsa='_dsa() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker stop $containers || echo "No containers to stop"; }; _dsa'
+  # Remove All containers
+  alias dra='_dra() { local containers=$(docker ps -a -q 2>/dev/null); [[ -n "$containers" ]] && docker rm $containers || echo "No containers to remove"; }; _dra'     
   
   # Image Management (safe versions with error checking)
-  alias drd='_drd() { local imgs=$(docker images -f "dangling=true" -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi -f $imgs || echo "No dangling images to remove"; }; _drd'  # Remove Dangling images
-  alias dri='_dri() { local imgs=$(docker images -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi $imgs || echo "No images to remove"; }; _dri'                                    # Remove Images
+  # Remove Dangling images
+  alias drd='_drd() { local imgs=$(docker images -f "dangling=true" -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi -f $imgs || echo "No dangling images to remove"; }; _drd'
+  # Remove Images
+  alias dri='_dri() { local imgs=$(docker images -q 2>/dev/null); [[ -n "$imgs" ]] && docker rmi $imgs || echo "No images to remove"; }; _dri'
   
   # Container Information
-  alias dip='_dip() { [[ $# -eq 1 ]] && docker inspect -f "{{`{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`}}" "$1" 2>/dev/null || echo "Usage: dip <container_name_or_id>"; }; _dip'  # Docker IP address
+  # Docker IP address
+  alias dip='_dip() { [[ $# -eq 1 ]] && docker inspect -f "{{`{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}`}}" "$1" 2>/dev/null || echo "Usage: dip <container_name_or_id>"; }; _dip'
 fi
 
 
+{{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
 # -----------------------------------------------------------------------------
 # ARCH LINUX PACKAGE MANAGER ALIASES
 # -----------------------------------------------------------------------------
-# Conditionally loaded for Arch Linux and EndeavourOS
-
-{{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
-
 # Pacman (official package manager)
 if command -v pacman &>/dev/null; then
   # Package Installation & Updates
