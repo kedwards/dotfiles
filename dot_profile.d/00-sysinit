@@ -1,5 +1,4 @@
 #!/usr/bin/bash
-
 # System initialization for bash
 
 # Enable vi mode
@@ -34,7 +33,6 @@ fi
 
 # docker
 if command -v docker &>/dev/null; then
-  # === OPTIMIZED BASH DOCKER COMPLETION ===
   docker_completion_file="$HOME/.local/share/bash-completion/completions/docker"
   # Only generate completion if it doesn't exist or docker was updated
   if [ ! -f "$docker_completion_file" ] || [ "$docker_completion_file" -ot "$(command -v docker)" ]; then
@@ -111,7 +109,6 @@ fi
 if command -v git &>/dev/null; then
   stamp_file="$HOME/.sysinit.git"
   if [ ! -f "$stamp_file" ]; then
-    # === OPTIMIZED BASH GIT COMPLETION ===
     git_completion_dir="$HOME/.local/share/bash-completion/completions"
     mkdir -p "$git_completion_dir"
     file="$git_completion_dir/git-completion.bash"
@@ -179,7 +176,6 @@ if command -v mise &>/dev/null; then
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
     export FZF_DEFAULT_OPTS='--no-mouse --height 50% --layout=reverse --multi --inline-info --border'
-    # === OPTIMIZED BASH FZF INTEGRATION ===
     # Cache fzf integration to avoid repeated eval overhead
     fzf_cache_file="$PROFILE_CACHE_DIR/fzf-integration.bash"
     if [ ! -f "$fzf_cache_file" ] || [ "$fzf_cache_file" -ot "${info[0]}" ]; then
@@ -206,7 +202,6 @@ if command -v mise &>/dev/null; then
   # kubectl (with completion caching for performance)
   if read -ra info <<<"$(mise_info kubectl)" && [[ -n "${info[0]}" ]]; then
     alias k="kubectl"
-    # === OPTIMIZED BASH KUBECTL COMPLETION ===
     kubectl_completion_file="$PROFILE_CACHE_DIR/kubectl-completion.bash"
     if [ ! -f "$kubectl_completion_file" ] || [ "$kubectl_completion_file" -ot "${info[0]}" ]; then
       mkdir -p "$PROFILE_CACHE_DIR"
@@ -244,8 +239,8 @@ if command -v mise &>/dev/null; then
       {
         mkdir -p "$TMUX_PLUGIN_DIR" 2>/dev/null
         if command -v git >/dev/null 2>&1; then
-          git clone --depth=1 https://github.com/tmux-plugins/tpm "$TMUX_PLUGIN_DIR/tpm" >/dev/null 2>&1 && \
-            log_debug "Successfully installed tmux plugin manager" || \
+          git clone --depth=1 https://github.com/tmux-plugins/tpm "$TMUX_PLUGIN_DIR/tpm" >/dev/null 2>&1 &&
+            log_debug "Successfully installed tmux plugin manager" ||
             log_debug "Failed to install tmux plugin manager"
         else
           log_debug "Git not available, skipping tmux plugin manager installation"
@@ -260,19 +255,19 @@ if command -v mise &>/dev/null; then
         log_debug "Already in tmux session"
         return 0
       fi
-      
+
       # Check if tmux is available
       if ! command -v tmux >/dev/null 2>&1; then
         log_error "tmux command not found"
         return 1
       fi
-      
+
       # Find the best session to attach to (most recently used unattached session)
       local attach_session
       attach_session=$(tmux 2>/dev/null ls -F \
         '#{session_attached} #{?#{==:#{session_last_attached},},1,#{session_last_attached}} #{session_id}' |
         awk '/^0/ { if ($2 > t) { t = $2; s = $3 } }; END { if (s) printf "%s", s }')
-      
+
       if [ -n "$attach_session" ]; then
         log_debug "Attaching to existing session: $attach_session"
         tmux attach -t "$attach_session"
@@ -338,11 +333,11 @@ EOF
   # zellij (with optimized plugin management)
   if read -ra info <<<"$(mise_info zellij)" && [[ -n "${info[0]}" ]]; then
     alias z='zellij'
-    
+
     # Setup zellij plugins in background if needed
     zellij_plugin_dir="$ZELLIJ_CONFIG_DIR/plugins"
     stamp_file="$PROFILE_CACHE_DIR/.sysinit.zellij"
-    
+
     if [ ! -f "$stamp_file" ] && [ ! -f "$zellij_plugin_dir/zjstatus.wasm" ]; then
       log_debug "Setting up zellij plugins in background"
       {
@@ -353,20 +348,20 @@ EOF
             log_debug "curl not available, skipping zjstatus plugin download"
             return 1
           fi
-          
+
           # Create plugin directory
           if ! mkdir -p "$zellij_plugin_dir" 2>/dev/null; then
             log_debug "Failed to create zellij plugin directory"
             return 1
           fi
-          
+
           # Use fixed version for reliability (update manually when needed)
-          local zjstatus_version="v0.13.1"  # Known stable version
+          local zjstatus_version="v0.13.1" # Known stable version
           local download_url="https://github.com/dj95/zjstatus/releases/download/${zjstatus_version}/zjstatus.wasm"
-          
+
           log_debug "Downloading zjstatus plugin version $zjstatus_version"
           if curl -L --fail --connect-timeout 10 --max-time 60 \
-               "$download_url" -o "$zellij_plugin_dir/zjstatus.wasm" >/dev/null 2>&1; then
+            "$download_url" -o "$zellij_plugin_dir/zjstatus.wasm" >/dev/null 2>&1; then
             log_debug "Successfully downloaded zjstatus plugin"
             return 0
           else
@@ -375,10 +370,10 @@ EOF
             return 1
           fi
         }
-        
+
         # Attempt download
         _download_zjstatus
-        
+
         # Always create stamp file to prevent repeated attempts
         touch "$stamp_file" 2>/dev/null || true
       } &
