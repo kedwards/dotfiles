@@ -1,12 +1,26 @@
--- Prepend mise shims to PATH first, before loading other modules
--- vim.env.PATH = vim.env.HOME .. "/.local/share/mise/shims:" .. vim.env.PATH
+-- Improve startup time by skipping some checks
+vim.loader.enable()
 
-for _, source in ipairs({
-  "config",
-  "Lazy",
-}) do
-  local status_ok, fault = pcall(require, source)
-  if not status_ok then
-    vim.notify("Failed to load " .. source .. "\n\n" .. fault)
-  end
+-- Load core configuration and plugin loader
+local modules = { "config", "Lazy" }
+local load_errors = {}
+
+for _, module in ipairs(modules) do
+	local ok, err = pcall(require, module)
+	if not ok then
+		table.insert(load_errors, { module = module, error = err })
+		-- Show error but don't block startup
+		vim.notify(string.format("Failed to load %s: %s", module, err), vim.log.levels.ERROR, { title = "Init Error" })
+	end
+end
+
+-- Show summary of load errors if any
+if #load_errors > 0 then
+	vim.defer_fn(function()
+		vim.notify(
+			string.format("Configuration loaded with %d errors. Check :messages for details.", #load_errors),
+			vim.log.levels.WARN,
+			{ title = "Startup Warning" }
+		)
+	end, 500)
 end

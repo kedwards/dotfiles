@@ -1,69 +1,157 @@
--- add mise shims to PATH
--- vim.env.PATH = vim.env.HOME .. '/.local/share/mise/shims:' .. vim.env.PATH
+return function()
+	local opt, g, fn = vim.opt, vim.g, vim.fn
 
--- set leaders
-vim.g.mapleader = " "
-vim.g.maplocalleader = ";"
+	-- LEADER KEYS
+	g.mapleader = " "
+	g.maplocalleader = ";"
 
--- disable providers
-vim.g.loaded_python_provider = 0
-vim.g.loaded_python3_provider = 0
-vim.g.loaded_ruby_provider = 0
-vim.g.loaded_perl_provider = 0
-vim.g.loaded_node_provider = 0
+	-- DISABLE PROVIDERS
+	for _, provider in ipairs({ "perl", "ruby", "node", "python3" }) do
+		local var = "loaded_" .. provider .. "_provider"
+		if g[var] == nil then
+			g[var] = 0
+		end
+	end
 
--- sync with system clipboard
-vim.opt.clipboard = ""
+	-- Disable netrw plugin
+	g.loaded_netrw = 1
+	g.loaded_netrwPlugin = 1
 
--- hide command line unless needed
-vim.opt.cmdheight = 0
+	-- FILE & BACKUP SETTINGS
+	opt.backup = false
+	opt.writebackup = false
+	opt.swapfile = false
+	opt.directory = ""
+	opt.undofile = true
+	opt.autoread = true
+	opt.autowrite = true
 
--- enable the use of space to insert a <TAB>
-vim.opt.expandtab = true
+	-- Setup undo directory
+	local undo_dir = vim.fn.stdpath("state") .. "/undo"
+	if fn.isdirectory(undo_dir) == 0 then
+		pcall(fn.mkdir, undo_dir, "p")
+	end
+	opt.undodir = undo_dir
 
--- use better grep tools if available
-if vim.fn.executable("rg") == 1 then
-  vim.opt.grepprg = "rg -H --vimgrep --no-heading" .. (vim.opt.smartcase and " --smart-case" or "") .. " --"
-  -- vim.opt.grepformat = "%f:%l:%c:%m,%f:%l:%m"
-end
+	-- GENERAL SETTINGS
+	opt.updatetime = 250
+	opt.timeoutlen = 400
+	opt.mouse = "a"
+	opt.confirm = true
+	opt.history = 1000
+	opt.hidden = true
 
--- case insensitive searching
-vim.opt.ignorecase = true
+	opt.wildmode = { "list", "longest" }
+	opt.wildignorecase = true
+	opt.wildmenu = true
 
--- preview substitutuions live, as you type
-vim.opt.inccommand = "split"
+	-- UI & DISPLAY SETTINGS
+	-- Command line
+	opt.cmdheight = 1
+	opt.showcmd = true
+	opt.showmode = false
+	opt.laststatus = 3
 
--- show numberline
-vim.opt.number = true
+	-- Cursor and lines
+	opt.showtabline = 1
+	opt.cursorline = true
+	opt.guicursor = "n-v-i-c:block-Cursor"
+	opt.number = true
+	opt.relativenumber = true
 
--- height of the pop up menu, max number of items
-vim.opt.pumheight = 10
+	-- Scrolling and viewport
+	opt.scrolloff = 8
+	opt.sidescrolloff = 8
+	opt.wrap = false
 
--- show relative numberline
-vim.opt.relativenumber = true
+	-- Columns and signs
+	opt.signcolumn = "yes:2"
+	opt.fillchars = { eob = " " }
 
--- number of lines to leave before/after the cursor when scrolling
--- setting a high value keep the cursor centered
-vim.opt.scrolloff = 1000
+	-- Popup menu
+	opt.pumheight = 15
+	opt.pumblend = 10
 
--- number of space inserted for indentation
-vim.opt.shiftwidth = 2
+	-- INDENTATION SETTINGS
+	opt.expandtab = true
+	opt.shiftwidth = 2
+	opt.tabstop = 2
+	opt.softtabstop = 2
+	opt.smartindent = true
+	opt.breakindent = true
+	opt.shiftround = true
 
-vim.opt.signcolumn = "yes"
+	opt.foldenable = true
+	opt.foldlevel = 99
+	opt.foldlevelstart = 99
+	opt.foldnestmax = 10
+	opt.foldcolumn = "1"
+	-- Use Treesitter folds if available
+	if pcall(require, "nvim-treesitter") then
+		opt.foldmethod = "expr"
+		opt.foldexpr = "nvim_treesitter#foldexpr()"
+	else
+		opt.foldmethod = "manual"
+	end
 
--- enable persistent undo
-vim.opt.undofile = true
+	-- SEARCH SETTINGS
+	opt.ignorecase = true
+	opt.smartcase = true
+	opt.inccommand = "split"
+	opt.hlsearch = true
+	opt.incsearch = true
 
--- path to store the undodir
-vim.opt.undodir = vim.fn.stdpath("data") .. "/undodir"
+	-- COMPLETION SETTINGS
+	opt.completeopt = { "menu", "menuone", "noselect", "fuzzy" }
+	opt.complete = { ".", "w", "b", "kspell" }
+	opt.shortmess:append("filnxtToOFWIcC")
 
-function _G.put(...)
-  local objects = {}
-  for i = 1, select("#", ...) do
-    local v = select(i, ...)
-    table.insert(objects, vim.inspect(v))
-  end
+	-- EDITING SETTINGS
+	opt.formatoptions = "jcroqlnt"
+	opt.joinspaces = false
+	opt.iskeyword:append("-")
 
-  print(table.concat(objects, "\n"))
-  return ...
+	-- BUFFER SETTINGS
+	opt.switchbuf = "usetab,uselast"
+
+	-- EXTERNAL TOOLS
+	-- Setup ripgrep if available
+	if fn.executable("rg") == 1 then
+		opt.grepprg = "rg --vimgrep --no-heading --smart-case --hidden --follow --glob '!.git/*'"
+		opt.grepformat = "%f:%l:%c:%m"
+	end
+
+	-- CLIPBOARD SETTINGS
+	-- Configure clipboard based on environment
+	local function setup_clipboard()
+		local has_wsl = os.getenv("WSL_DISTRO_NAME") or fn.has("wsl") == 1
+
+		if has_wsl then
+			-- WSL clipboard integration
+			g.clipboard = {
+				name = "WslClipboard",
+				copy = {
+					["+"] = "/mnt/c/WINDOWS/system32/clip.exe",
+					["*"] = "/mnt/c/WINDOWS/system32/clip.exe",
+				},
+				paste = {
+					["+"] = [[/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -Command [Console]::Out.Write($(Get-Clipboard -Raw).ToString().Replace("`r", ""))]],
+					["*"] = [[/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -Command [Console]::Out.Write($(Get-Clipboard -Raw).ToString().Replace("`r", ""))]],
+				},
+				-- Improve performance
+				cache_enabled = 1,
+			}
+		elseif vim.fn.has("macunix") == 1 then
+			-- macOS clipboard
+			opt.clipboard = "unnamedplus"
+		elseif vim.fn.executable("xclip") == 1 or vim.fn.executable("xsel") == 1 then
+			-- Linux with X11
+			opt.clipboard = "unnamedplus"
+		else
+			-- Fallback - no system clipboard
+			opt.clipboard = ""
+		end
+	end
+
+	setup_clipboard()
 end

@@ -37,8 +37,13 @@ M.header = [[
 ++++++++++-..::--===-. .:     ..               ========+++++
 ]]
 
-require("config.options")
-require("config.keymaps")
-require("config.autocmds")
+function M.setup()
+	require("config.utils").setup_mason()
+	require("config.options")()
+	require("config.keymaps")()
+	require("config.autocmds")()
+end
+
+M.setup()
 
 return M
