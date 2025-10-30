@@ -192,7 +192,7 @@ mise-search() {
     
     # Show available versions
     log_info "Available versions:"
-    mise ls-remote "$tool_name" | head -10
+    mise ls-remote "$tool_name" | tail -n 10
     
     echo ""
     read -r -p "Install latest version? (y/N): " confirm
