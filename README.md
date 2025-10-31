@@ -5,7 +5,6 @@ Dotfiles, managed with [Chezmoi](https://www.chezmoi.io/).
 ## Install
 
 -   [Chezmoi](https://www.chezmoi.io/)
--   [1Password CLI](https://developer.1password.com/docs/cli/) (Optional, for secrets management)
 
 **Ensure required software is installed before proceeding.** There are many ways to install Chezmoi. Check the [official documentation](https://www.chezmoi.io/install/) for the most up-to-date instructions. To install chezmoi and these dotfiles in a single command run the following:
 
