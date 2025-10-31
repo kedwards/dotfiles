@@ -2,7 +2,7 @@
 
 MARKER="# BEGIN sysinit: load custom profile settings"
 # Check if the snippet already exists
-grep -Fq "$MARKER" ~/.bashrc && return 0
+grep -Fq "$MARKER" ~/.bashrc && exit 0
 
 # Append the snippet
 cat <<'EOF' >> ~/.bashrc
