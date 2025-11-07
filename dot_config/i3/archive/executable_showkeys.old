@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+#
+# i3-show-keys: Display i3 window manager keybindings
+#
+# This script parses the i3 config file and displays all keybindings
+# in a searchable rofi window.
+
+set -euo pipefail
+
+# Configuration
+I3_CONFIG="${I3_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/i3/config}"
+ROFI_THEME="${ROFI_THEME:-}"
+
+# Colors for output
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly NC='\033[0m' # No Color
+
+# Function to print error messages
+error() {
+    echo -e "${RED}Error:${NC} $*" >&2
+}
+
+# Function to print info messages
+info() {
+    echo -e "${GREEN}Info:${NC} $*" >&2
+}
+
+# Function to print warning messages
+warn() {
+    echo -e "${YELLOW}Warning:${NC} $*" >&2
+}
+
+# Check if required commands are available
+check_dependencies() {
+    local missing_deps=()
+    
+    for cmd in rofi; do
+        if ! command -v "$cmd" &> /dev/null; then
+            missing_deps+=("$cmd")
+        fi
+    done
+    
+    if [ ${#missing_deps[@]} -ne 0 ]; then
+        error "Missing required dependencies: ${missing_deps[*]}"
+        echo ""
+        echo "Install with:"
+        echo "  Debian/Ubuntu: sudo apt install rofi"
+        echo "  Arch Linux:    sudo pacman -S rofi"
+        exit 1
+    fi
+}
+
+# Check if i3 config file exists
+check_config() {
+    if [ ! -f "$I3_CONFIG" ]; then
+        error "i3 config file not found at: $I3_CONFIG"
+        echo ""
+        echo "You can specify a custom location with:"
+        echo "  I3_CONFIG=/path/to/config $0"
+        exit 1
+    fi
+}
+
+# Parse i3 config and extract keybindings
+parse_keybindings() {
+    local config_file="$1"
+    local line_num=0
+    local in_mode=""
+    
+    while IFS= read -r line; do
+        ((line_num++))
+        
+        # Remove leading/trailing whitespace
+        line=$(echo "$line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        
+        # Skip empty lines and comments
+        [[ -z "$line" || "$line" =~ ^# ]] && continue
+        
+        # Check for mode blocks
+        if [[ "$line" =~ ^mode[[:space:]]+(\"[^\"]+\"|[^[:space:]]+) ]]; then
+            in_mode="${BASH_REMATCH[1]}"
+            in_mode="${in_mode//\"/}" # Remove quotes
+            continue
+        fi
+        
+        # Check for end of mode block
+        if [[ "$line" =~ ^\} ]] && [[ -n "$in_mode" ]]; then
+            in_mode=""
+            continue
+        fi
+        
+        # Parse bindsym and bindcode
+        if [[ "$line" =~ ^(bindsym|bindcode)[[:space:]]+([^[:space:]]+.*) ]]; then
+            local bind_type="${BASH_REMATCH[1]}"
+            local binding="${BASH_REMATCH[2]}"
+            
+            # Split keybinding and command
+            local key=""
+            local command=""
+            
+            # Handle --release, --locked, etc. flags
+            local flags=""
+            while [[ "$binding" =~ ^(--[^[:space:]]+)[[:space:]]+(.*) ]]; do
+                flags+="${BASH_REMATCH[1]} "
+                binding="${BASH_REMATCH[2]}"
+            done
+            
+            # Extract key and command
+            if [[ "$binding" =~ ^([^[:space:]]+)[[:space:]]+(.*) ]]; then
+                key="${BASH_REMATCH[1]}"
+                command="${BASH_REMATCH[2]}"
+            else
+                continue
+            fi
+            
+            # Format the output
+            local mode_prefix=""
+            if [[ -n "$in_mode" ]]; then
+                mode_prefix="[$in_mode] "
+            fi
+            
+            # Clean up the key for better readability
+            local display_key="$key"
+            display_key="${display_key//Mod1/Alt}"
+            display_key="${display_key//Mod4/Super}"
+            display_key="${display_key//Control/Ctrl}"
+            display_key="${display_key//Return/Enter}"
+            
+            # Output in format: KEY | COMMAND
+            printf "%-30s | %s%s\n" "$mode_prefix$display_key" "$flags" "$command"
+        fi
+    done < "$config_file"
+}
+
+# Display keybindings using rofi
+display_with_rofi() {
+    local rofi_args=(
+        -dmenu
+        -i
+        -p "i3 Keybindings"
+        -mesg "Search keybindings (Esc to close)"
+        -no-custom
+        -format "s"
+    )
+    
+    # Add theme if specified
+    if [[ -n "$ROFI_THEME" ]]; then
+        rofi_args+=(-theme "$ROFI_THEME")
+    fi
+    
+    # Additional styling
+    rofi_args+=(
+        -theme-str 'window {width: 80%;}'
+        -theme-str 'listview {lines: 20;}'
+    )
+    
+    # rofi returns 1 when user cancels, which is normal behavior
+    rofi "${rofi_args[@]}" || true
+}
+
+# Main function
+main() {
+    check_dependencies
+    check_config
+    
+    info "Parsing keybindings from: $I3_CONFIG"
+    
+    # Parse and display
+    parse_keybindings "$I3_CONFIG" | sort | display_with_rofi
+}
+
+# Run main function
+main "$@"

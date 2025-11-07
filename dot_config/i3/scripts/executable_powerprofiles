@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+THEME="$HOME/.config/i3/rofi/powerprofiles.rasi"
+
+# Dependency checks
+command -v powerprofilesctl >/dev/null 2>&1 || { echo "powerprofilesctl not found"; exit 1; }
+command -v rofi >/dev/null 2>&1 || { echo "rofi not found"; exit 1; }
+if ! command -v notify-send >/dev/null 2>&1; then
+    notify_send_missing=true
+fi
+
+current_profile="$(powerprofilesctl get 2>/dev/null)"
+
+# Menu entries
+cancel="  Cancel"
+perf="  Performance"
+balanced="  Balanced"
+powersave="  Power Saver"
+
+options="$cancel"
+
+if powerprofilesctl list | grep -q "performance"; then
+    options="$options\n$perf"
+fi
+if powerprofilesctl list | grep -q "balanced"; then
+    options="$options\n$balanced"
+fi
+if powerprofilesctl list | grep -q "power-saver"; then
+    options="$options\n$powersave"
+fi
+
+chosen="$(echo -e "$options" | \
+    rofi -dmenu \
+        -p "Change Profile" \
+        -theme "$THEME" \
+        -mesg "<b>Current used:</b> $current_profile" \
+        -markup-rows \
+        -i)"
+
+case $chosen in
+    "$perf")
+        powerprofilesctl set performance
+        ;;
+    "$balanced")
+        powerprofilesctl set balanced
+        ;;
+    "$powersave")
+        powerprofilesctl set power-saver
+        ;;
+    "$cancel" | "")
+        exit 0
+        ;;
+esac
+
+if [[ "$chosen" != "$cancel" && -z "${notify_send_missing}" ]]; then
+    notify-send -i dialog-information "Power Profile Changed" "New profile: ${chosen}"
+fi

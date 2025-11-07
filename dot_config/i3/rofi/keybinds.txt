@@ -1,0 +1,52 @@
+== Apps ==
++d;App Launcher;
++Return;Terminal;
++w;Browser (Firefox); 
++n;File manager (Thunar); 
+
+== Window ==
++f;Toggle fullscreen;
++h;Split horizontal;
++v;Split vertical;
++s;Layout stacking;
++e;Layout toggle split;
++Space;Toggle floating/tiling;
++Shift+Space;Toggle floating window;
++Shift+q;Close Window;󰅖
++f;Toggle Fullscreen;
+
+== Focus ==
++j;Focus left;
++k;Focus down;
++b;Focus up;
++;Focus right;
++Arrow Keys;Focus direction;
+
+== Move Windows ==
++Shift+j;Move window left;
++Shift+k;Move window down;
++Shift+l;Move window up;
++Shift+;Move window right;
++Shift+Arrow Keys;Move window direction;
+
+== Workspaces ==
++1..9;Switch to workspace 1-9;
++0;Switch to workspace 10;
++Shift+1..9;Move window to workspace 1-9;
++Shift+0;Move window to workspace 10;
++Tab;Next workspace;
++Shift+Tab;Previous workspace;
++Shift+n;Create new empty workspace;
+
+== System ==
++z;Show keybindings;;
+ Super+l;Lock screen;
++Shift+c;Reload i3 config;
++Shift+r;Restart i3;
++Shift+e;Logout menu;
+Print;Screenshot;
+XF86AudioRaiseVolume;Volume up;
+XF86AudioLowerVolume;Volume down;
+XF86AudioMute;Mute toggle;
+XF86MonBrightnessUp;Brightness up;
+XF86MonBrightnessDown;Brightness down
