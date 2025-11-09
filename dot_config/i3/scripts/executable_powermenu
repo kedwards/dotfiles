@@ -25,13 +25,13 @@ find_lock_script() {
 }
 
 # Menu entries
-cancel=" Cancel"
-lock="  Lock"
-logout="  Logout"
-reboot="  Reboot"
-shutdown="  Shutdown"
-suspend="  Suspend"
-hibernate="  Hibernate"
+cancel="✖ Cancel"
+lock="🔒 Lock"
+logout="⏻ Logout"
+reboot="🔄 Reboot"
+shutdown="⏻ Shutdown"
+suspend="🌙 Suspend"
+hibernate="❄ Hibernate"
 
 # Add lock only if script is found
 if lockcmd="$(find_lock_script)"; then
