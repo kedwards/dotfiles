@@ -17,30 +17,13 @@
 
 == Focus ==
 +j;Focus left;
-+k;Focus down;
-+b;Focus up;
-+;Focus right;
-+Arrow Keys;Focus direction;
-
-== Move Windows ==
-+Shift+j;Move window left;
-+Shift+k;Move window down;
-+Shift+l;Move window up;
-+Shift+;Move window right;
-+Shift+Arrow Keys;Move window direction;
-
-== Workspaces ==
-+1..9;Switch to workspace 1-9;
-+0;Switch to workspace 10;
-+Shift+1..9;Move window to workspace 1-9;
-+Shift+0;Move window to workspace 10;
-+Tab;Next workspace;
++k;Focus down
 +Shift+Tab;Previous workspace;
 +Shift+n;Create new empty workspace;
 
 == System ==
 +z;Show keybindings;;
- Super+l;Lock screen;
++l;Lock screen;
 +Shift+c;Reload i3 config;
 +Shift+r;Restart i3;
 +Shift+e;Logout menu;

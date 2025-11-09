@@ -2,9 +2,8 @@
  * ROFI configs i3 powermenu
  *******************************************************/
 configuration {
-    font:                           "Noto Sans Regular 10";
     show-icons:                     false;
-    icon-theme:                     "Qogir-dark";
+    icon-theme:                     "Qogir";
     scroll-method:                  0;
     disable-history:                false;
     fullscreen:                     false;
@@ -15,12 +14,8 @@ configuration {
 @theme "dark_theme.rasi"
 
 window {
-    background-color:               @background;
-    border:                         0;
-    padding:                        10;
-    transparency:                   "real";
-    width:                          200px;
-    location:                       east;
+  width:                          130px;
+  location:                       east;
 }
 
 listview {
