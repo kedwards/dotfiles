@@ -12,28 +12,39 @@ fi
 current_profile="$(powerprofilesctl get 2>/dev/null)"
 
 # Menu entries
-cancel="✖ Cancel"
 perf="⚡ Performance"
 balanced="⚖ Balanced"
 powersave="🔋 Power Saver"
 
-options="$cancel"
+# Highlight current profile with color
+if [[ "$current_profile" == "performance" ]]; then
+    perf="<span foreground='#00ff00'>$perf ●</span>"
+elif [[ "$current_profile" == "balanced" ]]; then
+    balanced="<span foreground='#00ff00'>$balanced ●</span>"
+elif [[ "$current_profile" == "power-saver" ]]; then
+    powersave="<span foreground='#00ff00'>$powersave ●</span>"
+fi
+
+options=""
 
 if powerprofilesctl list | grep -q "performance"; then
-    options="$options\n$perf"
+    [[ -n "$options" ]] && options="$options\n"
+    options="$options$perf"
 fi
 if powerprofilesctl list | grep -q "balanced"; then
-    options="$options\n$balanced"
+    [[ -n "$options" ]] && options="$options\n"
+    options="$options$balanced"
 fi
 if powerprofilesctl list | grep -q "power-saver"; then
-    options="$options\n$powersave"
+    [[ -n "$options" ]] && options="$options\n"
+    options="$options$powersave"
 fi
 
 chosen="$(echo -e "$options" | \
     rofi -dmenu \
         -p "Change Profile" \
         -theme "$THEME" \
-        -mesg "<b>Current used:</b> $current_profile" \
+        -mesg "<b>Current:</b> $current_profile" \
         -markup-rows \
         -i)"
 
@@ -47,11 +58,11 @@ case $chosen in
     "$powersave")
         powerprofilesctl set power-saver
         ;;
-    "$cancel" | "")
+    "")
         exit 0
         ;;
 esac
 
-if [[ "$chosen" != "$cancel" && -z "${notify_send_missing}" ]]; then
+if [[ -n "$chosen" && -z "${notify_send_missing}" ]]; then
     notify-send -i dialog-information "Power Profile Changed" "New profile: ${chosen}"
 fi
