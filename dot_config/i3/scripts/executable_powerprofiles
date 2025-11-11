@@ -12,10 +12,10 @@ fi
 current_profile="$(powerprofilesctl get 2>/dev/null)"
 
 # Menu entries
-cancel="  Cancel"
-perf="  Performance"
-balanced="  Balanced"
-powersave="  Power Saver"
+cancel="✖ Cancel"
+perf="⚡ Performance"
+balanced="⚖ Balanced"
+powersave="🔋 Power Saver"
 
 options="$cancel"
 
