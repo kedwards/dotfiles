@@ -25,7 +25,7 @@ exec --no-startup-id dex --autostart --environment i3
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
 exec --no-startup-id xss-lock -l ~/.config/i3/scripts/blur-lock
-bindsym $mod+l exec --no-startup-id ~/.config/i3/scripts/blur-lock
+# bindsym $mod+l exec --no-startup-id ~/.config/i3/scripts/blur-lock
 
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
@@ -65,7 +65,7 @@ bindsym $mod+d exec --no-startup-id rofi -modi drun -show drun -config ~/.config
 # change focus
 bindsym $mod+j focus left
 bindsym $mod+k focus down
-bindsym $mod+b focus up
+bindsym $mod+l focus up
 bindsym $mod+semicolon focus right
 
 # alternatively, you can use the cursor keys:
@@ -97,7 +97,7 @@ bindsym $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
 bindsym $mod+s layout stacking
-# bindsym $mod+w layout tabbed
+bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
@@ -117,7 +117,7 @@ bindsym $mod+a focus parent
 # stacking: Each window will be fullscreen and tabbed top to bottom.
 # tabbed: Each new window will open fullscreen as a tab (left to right)
 # workspace_layout default
-workspace_layout tabbed
+workspace_layout default
 
 # open a new workspace
 bindsym $mod+Shift+n exec --no-startup-id ~/.config/i3/scripts/workspace
@@ -139,7 +139,7 @@ for_window [class="Xfce4-terminal"] focus
 for_window [class="(?i)firefox"] focus
 for_window [class="Thunar"] focus
 
-bindsym $mod+w exec --no-startup-id /usr/bin/firefox
+bindsym $mod+b exec --no-startup-id /usr/bin/firefox
 bindsym $mod+n exec --no-startup-id /usr/bin/thunar
 
 # switch to workspace
@@ -174,7 +174,7 @@ bindsym $mod+Shift+r restart
 
 # exit i3 (logs you out of your X session)
 #bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
-bindsym $mod+Shift+e exec --no-startup-id ~/.config/i3/scripts/powermenu
+bindsym $mod+p exec --no-startup-id ~/.config/i3/scripts/powermenu
 
 # Show keybindings overlay (Press Escape to close)
 # Position: center (options: center, north, south, east, west, northeast, northwest, southeast, southwest)
