@@ -18,6 +18,15 @@ See [.chezmoiroot - chezmoi](https://www.chezmoi.io/reference/special-files-and-
 
 **Ensure required software is installed before proceeding.** There are many ways to install Chezmoi. Check the [official documentation](https://www.chezmoi.io/install/) for the most up-to-date instructions. To install chezmoi and these dotfiles in a single command run the following:
 
+## Testing
+
+make docker
+
+```bash
+docker build -t chezmoi . --build-arg USERNAME="$(whoami)"
+docker run -it -v "$(pwd):/home/$(whoami)/.local/share/chezmoi" chezmoi /bin/bash --login
+```
+
 ## First Run
 
 ```bash
