@@ -1,4 +1,6 @@
-## 🗿 Overview
+# Dotfiles
+
+## Overview
 
 This [dotfiles](https://github.com/shunk031/dotfiles) repository is managed with [`chezmoi🏠`](https://www.chezmoi.io/), a great dotfiles manager.
 The setup scripts are aimed for [MacOS](https://www.apple.com/jp/macos), [Ubuntu Desktop](https://ubuntu.com/desktop), and [Ubuntu Server](https://ubuntu.com/server). The first two (MacOS/Ubuntu Desktop) include settings for `client` machines and the latter one (Ubuntu Server) for `server` machines.
@@ -19,8 +21,6 @@ See [.chezmoiroot - chezmoi](https://www.chezmoi.io/reference/special-files-and-
 **Ensure required software is installed before proceeding.** There are many ways to install Chezmoi. Check the [official documentation](https://www.chezmoi.io/install/) for the most up-to-date instructions. To install chezmoi and these dotfiles in a single command run the following:
 
 ## Testing
-
-make docker
 
 ```bash
 docker build -t chezmoi . --build-arg USERNAME="$(whoami)"
