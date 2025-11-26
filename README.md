@@ -2,11 +2,6 @@
 
 ## Overview
 
-This [dotfiles](https://github.com/shunk031/dotfiles) repository is managed with [`chezmoi🏠`](https://www.chezmoi.io/), a great dotfiles manager.
-The setup scripts are aimed for [MacOS](https://www.apple.com/jp/macos), [Ubuntu Desktop](https://ubuntu.com/desktop), and [Ubuntu Server](https://ubuntu.com/server). The first two (MacOS/Ubuntu Desktop) include settings for `client` machines and the latter one (Ubuntu Server) for `server` machines.
-
-
-
 Dotfiles, managed with [Chezmoi](https://www.chezmoi.io/).
 
 **IMPORTANT:** While many dotfile repositories are designed to be forked, mine are not. These are customized for my personal use and likely contain many things you won't need or want to use. Posting publicly so you can see how I manage my dotfiles and maybe get some ideas for how to manage your own.
@@ -18,7 +13,7 @@ See [.chezmoiroot - chezmoi](https://www.chezmoi.io/reference/special-files-and-
 
 -   [Chezmoi](https://www.chezmoi.io/)
 
-**Ensure required software is installed before proceeding.** There are many ways to install Chezmoi. Check the [official documentation](https://www.chezmoi.io/install/) for the most up-to-date instructions. To install chezmoi and these dotfiles in a single command run the following:
+**Ensure required software is installed before proceeding.** There are many ways to install Chezmoi. Check the [official documentation](https://www.chezmoi.io/install/) for the most up-to-date instructions.
 
 ## Testing
 
@@ -28,6 +23,8 @@ docker run -it -v "$(pwd):/home/$(whoami)/.local/share/chezmoi" chezmoi /bin/bas
 ```
 
 ## First Run
+
+To install chezmoi and these dotfiles in a single command run the following:
 
 ```bash
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply kedwards
