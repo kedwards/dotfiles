@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# Finds the public IP address using various services.
+# Arguments:
+#   $1 - The IP version (4 or 6, optional, default is 4).
+myip() {
+  services=("icanhazip.com" "ifconfig.me" "ident.me" "ipecho.net/plain")
+
+  case $1 in
+  4) type=-4 ;;
+  6) type=-6 ;;
+  *) type=-4 ;;
+  esac
+  while true; do
+    service=$(printf "%s\n" "${services[@]}" | shuf -n1)
+    ip=$(curl $type "$service" 2>/dev/null)
+    if [[ $ip =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "$service - $ip"
+      break
+    fi
+    ((random++))
+  done
+}

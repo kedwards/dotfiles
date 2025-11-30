@@ -15,8 +15,8 @@ if not uv.fs_stat(lazypath) then
 		"clone",
 		"--filter=blob:none",
 		"--depth=1",
+		-- "--branch=stable",
 		"https://github.com/folke/lazy.nvim.git",
-		"--branch=stable",
 		lazypath,
 	})
 

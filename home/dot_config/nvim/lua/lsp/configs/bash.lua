@@ -13,12 +13,12 @@ return {
 
 	-- Formatters
 	format = {
-		sh = { "beautysh" },
+		sh = {},
 	},
 
 	-- Linters
 	lint = {
-		sh = { "shellharden", "shfmt" },
+		sh = {},
 	},
 
 	-- DAP
