@@ -32,4 +32,56 @@ alias ssmf='aws-ssm-connect --config'
 alias ssmx='aws-ssm-exec'
 alias ssml='aws-ssm-list'
 alias ssmk='aws-ssm-kill'
-alias rae='aws-env-run'
+
+{{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
+# pacman
+if command -v pacman &>/dev/null; then
+  # install package
+  alias paci='sudo pacman -S'
+
+  # Pacman Has Installed - what files where installed in a package
+  alias pachi='sudo pacman -Ql'
+
+  # search
+  alias pacs='sudo pacman -Ss'
+
+  # update
+  alias pacu='sudo pacman -Syu'
+
+  # remove package but not dependencies
+  alias pacr='sudo pacman -R'
+
+  # remove package with unused dependencies by other softwares
+  alias pacrr='sudo pacman -Rs'
+
+  # remove pacman cache
+  alias pacrc='sudo pacman -Sc'
+  alias pacc='sudo pacman -Sc'
+  alias paccc='sudo pacman -Scc' # empty the whole cache
+fi
+
+# yay
+if command -v yay &>/dev/null; then
+  # install
+  alias yayi='yay -S'
+
+  # Yay Has Installed - what files where installed in a package
+  alias yayhi='yay -Ql'
+
+  # search
+  alias yays='yay -Ss'
+
+  # update
+  alias yayu='yay -Syu'
+
+  # remove package but not dependencies
+  alias yayr='yay -R'
+
+  # remove package with unused dependencies by other softwares
+  alias yayrr='yay -Rs'
+
+  # remove yay's cache
+  alias yayrc='yay -Sc'
+  alias yayls="yay -Qe"
+fi
+{{- end }}
