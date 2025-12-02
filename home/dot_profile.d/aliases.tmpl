@@ -34,6 +34,7 @@ alias ssml='aws-ssm-list'
 alias ssmk='aws-ssm-kill'
 
 {{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
+
 # pacman
 if command -v pacman &>/dev/null; then
   # install package
