@@ -185,7 +185,6 @@ worktree() {
 }
 
 # Git aliases
-alias g='git'
 alias clone='clone_repository'
 alias wt='worktree'
 
