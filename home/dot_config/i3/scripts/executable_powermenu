@@ -25,18 +25,25 @@ find_lock_script() {
 }
 
 # Menu entries
-lock="🔒 Lock"
-logout="⏻ Logout"
-reboot="🔄 Reboot"
-shutdown="⏻ Shutdown"
-suspend="🌙 Suspend"
-hibernate="❄ Hibernate"
+#lock="🔒 Lock"
+#logout="⏻ Logout"
+#reboot="🔄 Reboot"
+#shutdown="⏻ Shutdown"
+#suspend="🌙 Suspend"
+#hibernate="❄ Hibernate"
+chancel=" Cancel"
+lock="  Lock"
+logout="  Logout"
+reboot="  Reboot"
+shutdown="  Shutdown"
+suspend="  Suspend"
+hibernate="  Hibernate"
 
 # Add lock only if script is found
 if lockcmd="$(find_lock_script)"; then
-  options="$lock\n$logout\n$reboot\n$shutdown\n$suspend\n$hibernate"
+    options="$cancel\n$lock\n$logout\n$reboot\n$shutdown\n$suspend\n$hibernate"
 else
-  options="$logout\n$reboot\n$shutdown\n$suspend\n$hibernate"
+    options="$cancel\n$logout\n$reboot\n$shutdown\n$suspend\n$hibernate"
 fi
 
 chosen="$(echo -e "$options" | \
@@ -49,7 +56,7 @@ case $chosen in
   "$lock")
     $lockcmd
     ;;
-  "")
+  "$cancel"|"")
     exit 0
     ;;
   "$logout")
