@@ -67,7 +67,7 @@ if command -v docker &>/dev/null; then
       echo "" # dockerhub = no registry prefix
       ;;
     "rch")
-      aws-profile_switcher ps
+      assume ps
       echo "003756058538.dkr.ecr.us-east-1.amazonaws.com/"
       ;;
     *)
@@ -97,7 +97,7 @@ if command -v docker &>/dev/null; then
     docker "$cmd" "${registry}${image}"
 
     # Reset AWS profile if we used rch
-    [[ "$3" == "rch" ]] && aws-profile_switcher -u
+    [[ "$3" == "rch" ]] && assume -un
   }
 
   # Clones a Docker image by pulling it, tagging it with a new tag, and pushing it back.
