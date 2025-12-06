@@ -8,15 +8,15 @@ store_credentials() {
     return 1
   fi
 
-  # Check if aws-profile_switcher function is available
-  if ! command -v aws-profile_switcher >/dev/null 2>&1; then
-    echo "[ERROR] aws-profile_switcher function not found. Please source AWS configuration."
+  # Check if assume function is available
+  if ! command -v assume >/dev/null 2>&1; then
+    echo "[ERROR] assume function not found. Please source AWS configuration."
     return 1
   fi
 
   local env=$1
   echo "[INFO] Switching to AWS profile: $env"
-  aws-profile_switcher "$env"
+  assume "$env"
 
   # Store credentials in shorter variable names
   export AK="$AWS_ACCESS_KEY_ID" SK="$AWS_SECRET_ACCESS_KEY" ST="$AWS_SESSION_TOKEN"
@@ -27,7 +27,7 @@ store_credentials() {
     echo "[WARNING] No credentials found for profile: $env"
   fi
 
-  aws-profile_switcher -u
+  assume -un
 }
 
 # Deploys v2 infrastructure using Ansible.
@@ -61,19 +61,21 @@ EOF
     dr_deploy=$6
 
     store_credentials ps
-    aws-profile_switcher "$profile"
+    assume "$profile"
 
     (
       unset AWS_PROFILE
       echo ANSIBLE_PYTHON_INTERPRETER="$(mise which python)" \
         make -C infra/ansible "${target}" \
-        ENV="${profile}" REGION="${region}" TOPV2="$(pwd)" CONFIG="${config}" SERVICE="setup" \
+        ENV="${profile}" \
+        REGION="${region}" \
+        TOPV2="$(pwd)" \
+        CONFIG="${config}" SERVICE="setup" \
         EXTRA_VARS="ps_aws_access_key_id=$AK ps_aws_secret_access_key=$SK ps_aws_session_token=$ST dr_deploy=$dr_deploy" \
         RUNTAG="${tags}"
     )
-    export EXTRA_VARS=""
-    export ANSIBLE_PYTHON_INTERPRETER=""
-    aws-profile_switcher -u
+    unset EXTRA_VARS ANSIBLE_PYTHON_INTERPRETER
+    assume -un
   fi
   return 0
 }
