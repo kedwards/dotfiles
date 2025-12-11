@@ -10,7 +10,8 @@ GIT_DEV_DIR="${GIT_DEV_DIR:-$HOME/projects}"
 # Arguments:
 #   $1 - The GitHub owner/organization.
 #   $2 - The repository name.
-#   $3 - Optional: "clone" to clone a regular repository.
+#   $3 - Optional: "clone" to clone a regular repository, or custom path.
+#   $4 - Optional: "clone" if $3 is a custom path.
 # Returns:
 #   0 on success, 1 on failure.
 clone_repository() {
@@ -22,12 +23,19 @@ clone_repository() {
 
   if [ "$#" -lt 2 ]; then
     cat <<EOF
-Usage: clone_repository <repo_owner> <repository_name> [clone]
+Usage: clone_repository <repo_owner> <repository_name> [clone|custom_path] [clone]
 Clone repository (bare) to local directory
 Parameters:
   repo_owner:      GitHub owner/organization
   repository_name: Name of repository
-  clone:           Clone regular repository
+  custom_path:     Optional custom destination path (overrides default)
+  clone:           Clone regular repository (not bare)
+
+Examples:
+  clone_repository owner repo              # Bare clone to \$GIT_DEV_DIR/repo
+  clone_repository owner repo clone        # Regular clone to \$GIT_DEV_DIR/repo
+  clone_repository owner repo /custom/path # Bare clone to /custom/path
+  clone_repository owner repo /custom/path clone # Regular clone to /custom/path
 
 Environment Variables:
   GIT_DEV_DIR:     Base directory for repositories (default: \$HOME/dev)
@@ -37,7 +45,22 @@ EOF
 
   owner=$(echo "$1" | tr '[:upper:]' '[:lower:]')
   repo=$(echo "$2" | tr '[:upper:]' '[:lower:]')
-  repo_path="$GIT_DEV_DIR/$repo"
+
+  # Determine if third argument is a path or "clone"
+  clone_type="bare"
+  if [ "$#" -ge 3 ] && [ "$3" != "clone" ]; then
+    # Third argument is a custom path
+    repo_path="$3"
+    if [ "$#" -eq 4 ] && [ "$4" = "clone" ]; then
+      clone_type="regular"
+    fi
+  else
+    # Use default path
+    repo_path="$GIT_DEV_DIR/$repo"
+    if [ "$3" = "clone" ]; then
+      clone_type="regular"
+    fi
+  fi
 
   # Validate inputs
   if [ -z "$owner" ] || [ -z "$repo" ]; then
@@ -80,7 +103,7 @@ EOF
   fi
 
   echo "Cloning repository: $owner/$repo"
-  if [ "$#" -eq 2 ]; then
+  if [ "$clone_type" = "bare" ]; then
     # Bare clone
     if ! git clone --bare "https://github.com/$owner/$repo.git" "$repo_path" 2>/dev/null; then
       echo "Error: Failed to clone repository (check network, repository exists, or authentication)"

@@ -8,7 +8,19 @@ set -o vi
 {{- else if eq $shell "zsh" }}
 bindkey -v
 {{- end }}
-export EDITOR=nvims
+
+# Enable vi-mode indicators
+bind 'set show-mode-in-prompt on'
+
+# Normal mode (RED)
+# bind 'set vi-cmd-mode-string "\1\e[31m\2[N]\1\e[0m\2 "'
+bind 'set vi-cmd-mode-string "\1\e[31m\2\1\e[0m\2 "'
+
+# Insert mode (GREEN)
+# bind 'set vi-ins-mode-string "\1\e[32m\2[I]\1\e[0m\2 "'
+bind 'set vi-ins-mode-string "\1\e[32m\2\1\e[0m\2 "'
+
+export EDITOR=nvim
 
 # Shell type for compatibility
 SHELL_TYPE="{{ $shell }}"
@@ -245,18 +257,12 @@ if command -v mise &>/dev/null; then
 
   # starship (with initialization caching for performance)
   if read -ra info <<<"$(mise_info starship)" && [[ -n "${info[0]}" ]]; then
-    export STARSHIP_VI_MODE=" " # Default to insert mode
     starship_cache_file="$PROFILE_CACHE_DIR/starship-init.$SHELL_TYPE"
     if [ ! -f "$starship_cache_file" ] || [ "$starship_cache_file" -ot "${info[0]}" ]; then
       mkdir -p "$PROFILE_CACHE_DIR"
       "${info[0]}" init "$SHELL_TYPE" >"$starship_cache_file" 2>/dev/null || touch "$starship_cache_file"
     fi
     [ -f "$starship_cache_file" ] && source "$starship_cache_file"
-    {{- if eq $shell "bash" }}
-    bind 'set show-mode-in-prompt on'
-    bind 'set vi-cmd-mode-string "\033[31m "'
-    bind 'set vi-ins-mode-string "\033[32m "'
-    {{- end }}
   fi
 
   # tmux

@@ -18,9 +18,12 @@ shopt -s cmdhist
 # Append to history file instead of overwriting
 shopt -s histappend
 
+# Append commands immediately (not at end of session)
+export PROMPT_COMMAND='history -a'
+
 # Prevent duplicate lines and lines starting with space from being recorded in history
 export HISTCONTROL="erasedups:ignoreboth"
-export HISTIGNORE="&:[ ]*:exit:ls:bg:fg:history"
+export HISTIGNORE="clear:&:[ ]*:exit:ls:[bf]g:history:date:* --help"
 
 # Set history timestamp format
 export HISTTIMEFORMAT='%F %T '
