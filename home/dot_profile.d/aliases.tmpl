@@ -26,13 +26,6 @@ if command -v docker &>/dev/null; then
   alias dip='_dip() { [[ $# -eq 1 ]] && docker inspect -f `{{"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"}}` "$1" 2>/dev/null || echo "Usage: dip <container_name_or_id>"; }; _dip'
 fi
 
-# SSM tools
-alias ssm='aws-ssm-connect'
-alias ssmf='aws-ssm-connect --config'
-alias ssmx='aws-ssm-exec'
-alias ssml='aws-ssm-list'
-alias ssmk='aws-ssm-kill'
-
 {{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
 
 # pacman
