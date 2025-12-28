@@ -1,4 +1,4 @@
-# Managed by chezmoi
 # Root i3 config
 
-include config.d/*.conf
+set $mod Mod4
+include conf.d/*.conf
