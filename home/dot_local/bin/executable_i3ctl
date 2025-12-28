@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+BASE_DIR="${XDG_DATA_HOME:-$HOME/.local}/bin/i3ctl.d"
+
+# shellcheck source=/dev/null
+source "$BASE_DIR/common.sh"
+
+ACTION="${1:-}"
+shift || true
+
+case "$ACTION" in
+  lock)
+    source "$BASE_DIR/lock.sh"
+    lock_cmd "$@"
+    ;;
+  brightness)
+    source "$BASE_DIR/brightness.sh"
+    brightness_cmd "$@"
+    ;;
+  audio)
+    source "$BASE_DIR/audio.sh"
+    audio_cmd "$@"
+    ;;
+  workspace)
+    source "$BASE_DIR/workspace.sh"
+    workspace_cmd "$@"
+    ;;
+  display)
+    source "$BASE_DIR/display.sh"
+    display_cmd "$@"
+    ;;
+  power)
+    source "$BASE_DIR/power.sh"
+    power_cmd
+    ;;
+  keys)
+    source "$BASE_DIR/keys.sh"
+    keys_cmd
+    ;;
+  cleanup)
+    source "$BASE_DIR/cleanup.sh"
+    cleanup_cmd "$@"
+    ;;
+  doctor)
+    source "$BASE_DIR/doctor.sh"
+    doctor_cmd
+    ;;
+  -h|--help|"")
+    i3ctl_help
+    ;;
+  *)
+    die "Unknown command: $ACTION"
+    ;;
+esac

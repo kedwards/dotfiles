@@ -1,0 +1,25 @@
+  Window Management
+────────────────────────────
+Mod+Enter        Terminal
+Mod+Shift+Q      Kill window
+Mod+F            Fullscreen
+Mod+Shift+Space  Toggle floating
+
+  Navigation
+────────────────────────────
+Mod+J / K / L / ;  Move focus
+Mod+Shift+J/K/L/; Move window
+Mod+Tab           Next workspace
+
+  Workspaces
+────────────────────────────
+Mod+1..0          Switch workspace
+Mod+Shift+1..0    Move to workspace
+Mod+Shift+N       New workspace
+
+  System
+────────────────────────────
+XF86AudioMute     Mute audio
+XF86AudioMicMute  Mute microphone
+Mod+P             Power menu
+Mod+Z             Show keys

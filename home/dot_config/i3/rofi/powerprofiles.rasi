@@ -1,27 +1,26 @@
-// i3 power-profiles-switcher
-configuration {
-    font:                           "Noto Sans Regular 10";
-    show-icons:                     false;
-    icon-theme:                     "Qogir-dark";
-    scroll-method:                  0;
-    disable-history:                false;
-    fullscreen:                     false;
-    hide-scrollbar:                 true;
-    sidebar-mode:                   false;
-}
-
+// i3 power profiles
 @theme "dark_theme.rasi"
 
+configuration {
+    show-icons:       false;
+    scroll-method:    0;
+    disable-history:  true;
+    fullscreen:       false;
+    hide-scrollbar:   true;
+    sidebar-mode:     false;
+}
+
 window {
-  width:                          130px;
-  location:                       east;
+    width:    280px;
+    location: east;
+    anchor:   east;
 }
 
 listview {
-    lines:                           3;
-    columns:                        1;
+    lines:   3;
+    columns: 1;
 }
 
 mainbox {
-    children: [listview];
+    children: [ listview ];
 }
