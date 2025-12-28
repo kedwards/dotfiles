@@ -1,14 +1,16 @@
-// i3 Apps menu
+// i3 Apps menu (dmenu mode)
 @theme "dark_theme.rasi"
 
 configuration {
   show-icons: true;
   icon-theme: "Qogir";
-  scroll-method: 0;
+
+  drun-display-format: "{name}";
+  display-drun: "Apps";
+
   disable-history: false;
   sidebar-mode: false;
-  display-drun: "Apps";
-  drun-display-format: "{name}";
+  scroll-method: 0;
 }
 
 window {
@@ -16,6 +18,6 @@ window {
 }
 
 listview {
-  lines:   10;
+  lines: 10;
   columns: 3;
 }

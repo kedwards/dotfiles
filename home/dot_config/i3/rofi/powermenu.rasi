@@ -1,26 +1,26 @@
 // i3 powermenu
-configuration {
-    show-icons:                     false;
-    icon-theme:                     "Qogir";
-    scroll-method:                  0;
-    disable-history:                false;
-    fullscreen:                     false;
-    hide-scrollbar:                 true;
-    sidebar-mode:                   false;
-}
-
 @theme "dark_theme.rasi"
 
+configuration {
+    show-icons:       false;
+    scroll-method:    0;
+    disable-history:  true;
+    fullscreen:       false;
+    hide-scrollbar:   true;
+    sidebar-mode:     false;
+}
+
 window {
-  width:                          130px;
-  location:                       east;
+    width:      260px;
+    location:   east;
+    anchor:     east;
 }
 
 listview {
-    lines:                          6;
-    columns:                        1;
+    lines:    7;
+    columns:  1;
 }
 
 mainbox {
-  children: [listview];
+    children: [ listview ];
 }
