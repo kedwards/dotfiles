@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_NAME="$(basename "$0")"
+
+usage() {
+  cat <<EOF
+Usage:
+  $SCRIPT_NAME <target> <env> [config] [region] [tags] [dr_deploy]
+
+Arguments:
+  target      Ansible target
+  env         Ansible environment / AWS profile
+  config      Config branch (default: main)
+  region      AWS region (default: us-east-1)
+  tags        Ansible tags
+  dr_deploy   DR deploy flag
+
+Examples:
+  $SCRIPT_NAME plan ps
+  $SCRIPT_NAME apply prod release us-east-1 db
+EOF
+}
+
+log()  { echo "[INFO] $*" >&2; }
+err()  { echo "[ERROR] $*" >&2; exit 1; }
+
+[[ $# -lt 2 ]] && { usage; exit 1; }
+
+TARGET="$1"
+PROFILE="$2"
+CONFIG="${3:-main}"
+REGION="${4:-us-east-1}"
+TAGS="${5:-}"
+DR_DEPLOY="${6:-}"
+
+command -v assume >/dev/null || err "'assume' not found"
+command -v make   >/dev/null || err "'make' not found"
+
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+log "Loading base credentials (ps)"
+eval "$("$BIN_DIR/store-credentials" ps)"
+
+log "Assuming target profile: $PROFILE"
+assume "$PROFILE"
+
+cleanup() {
+  log "Cleaning up AWS session"
+  assume -un || true
+}
+trap cleanup EXIT
+
+(
+  unset AWS_PROFILE
+
+  export ANSIBLE_PYTHON_INTERPRETER
+  ANSIBLE_PYTHON_INTERPRETER="$(mise which python)"
+
+  log "Running Ansible target '$TARGET'"
+  make -C infra/ansible "$TARGET" \
+    ENV="$PROFILE" \
+    REGION="$REGION" \
+    CONFIG="$CONFIG" \
+    SERVICE="setup" \
+    EXTRA_VARS="ps_aws_access_key_id=$AK ps_aws_secret_access_key=$SK ps_aws_session_token=$ST dr_deploy=$DR_DEPLOY" \
+    RUNTAG="$TAGS"
+)

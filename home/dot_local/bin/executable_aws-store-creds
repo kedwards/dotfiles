@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage:
+  source store-credentials <env>
+  eval "\$(store-credentials <env>)"
+
+Exports AWS credentials into the current shell.
+
+Requires:
+  - assume (granted)
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+ENV="${1:-}"
+if [[ -z "$ENV" ]]; then
+  usage
+  exit 1
+fi
+
+if ! command -v assume >/dev/null 2>&1; then
+  echo "[ERROR] 'assume' not found in PATH" >&2
+  exit 1
+fi
+
+# Run assume in a subshell so we can capture env safely
+eval "$(
+  assume "$ENV" --exec env | awk -F= '
+    /^AWS_ACCESS_KEY_ID=/ ||
+    /^AWS_SECRET_ACCESS_KEY=/ ||
+    /^AWS_SESSION_TOKEN=/ ||
+    /^AWS_REGION=/ {
+      print "export " $1 "=\"" $2 "\""
+    }
+  '
+)"
+
+# Short aliases (optional but nice)
+cat <<EOF
+export AK="\$AWS_ACCESS_KEY_ID"
+export SK="\$AWS_SECRET_ACCESS_KEY"
+export ST="\$AWS_SESSION_TOKEN"
+EOF
