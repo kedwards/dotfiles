@@ -13,11 +13,11 @@ __load_git_tools() {
 
 alias l='ls -laF'
 alias dpp='__load_docker_tools; pull_push_image'
-alias clone='__load_git_tools; clone_repository'
 alias wt='__load_git_tools; worktree'
 alias myip='net-tools myip'
-
 alias t='tmux-tools'
+
+clone() { __load_git_tools; clone_repository "$@"; }
 
 
 # Docker

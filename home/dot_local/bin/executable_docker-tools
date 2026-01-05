@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-set -euo pipefail
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  # Only set strict mode when executed, not when sourced
+  set -euo pipefail
+fi
 
 usage() {
   cat <<EOF

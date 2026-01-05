@@ -18,5 +18,5 @@ myip() {
 }
 
 case "${1:-}" in
-  myip|"") myip "$2" ;;
+  myip|"") myip "${2:-}" ;;
 esac
