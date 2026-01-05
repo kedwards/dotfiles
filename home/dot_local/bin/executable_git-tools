@@ -67,6 +67,20 @@ if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
   # sourced
   alias clone='clone_repository'
   alias wt='worktree'
+  
+  # Set up git-worktree-wrapper if available
+  if command -v git-worktree-wrapper.sh >/dev/null 2>&1; then
+    export DISABLE_GIT_WORKTREE_EDITOR=1
+    # Use alias with absolute path for reliability
+    GWT_WRAPPER_PATH="$(command -v git-worktree-wrapper.sh)"
+    alias git="source '$GWT_WRAPPER_PATH'"
+    # git() {
+    #   source "$GWT_WRAPPER_PATH" "$@"
+    # }
+  else
+    # If wrapper not available, just use regular git
+    :
+  fi
 else
   case "$1" in
     clone) shift; clone_repository "$@" ;;
