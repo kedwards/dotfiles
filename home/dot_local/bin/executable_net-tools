@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+myip() {
+  local type="-4"
+  [[ "${1:-}" == "6" ]] && type="-6"
+
+  for svc in icanhazip.com ifconfig.me ident.me; do
+    ip="$(curl -s $type "$svc")" || continue
+    [[ "$ip" =~ ^[0-9a-fA-F:.]+$ ]] && {
+      echo "$svc → $ip"
+      return 0
+    }
+  done
+
+  echo "Failed to determine IP" >&2
+  return 1
+}
+
+case "${1:-}" in
+  myip|"") myip "$2" ;;
+esac

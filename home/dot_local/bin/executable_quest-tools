@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+install() {
+  local path="$1"
+  local pkg="$2"
+  local apk="$3"
+
+  cd "$path"
+  adb install -g -r "$apk"
+  adb shell mkdir -p "/sdcard/Android/obb/$pkg"
+  adb push "$pkg" /sdcard/Android/obb/
+}
+
+case "${1:-}" in
+  install)
+    install "$2" "$3" "$4"
+    ;;
+  *)
+    echo "quest-tools install <dir> <package> <apk>"
+    ;;
+esa 

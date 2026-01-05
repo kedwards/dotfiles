@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+docker-tools
+
+Commands:
+  pull <image:tag> [registry]
+  push <image:tag> [registry]
+  clone <image:tag> <new-tag> [registry]
+
+Registries:
+  dockerhub (default)
+  rch        (ECR via assume ps)
+EOF
+}
+
+get_registry() {
+  case "${1:-dockerhub}" in
+    dockerhub|"") echo "" ;;
+    rch)
+      assume ps
+      echo "003756058538.dkr.ecr.us-east-1.amazonaws.com/"
+      ;;
+    *) echo "${1%/}/" ;;
+  esac
+}
+
+pull_push() {
+  local cmd="$1"
+  local image="${2,,}"
+  local registry
+  registry="$(get_registry "${3:-dockerhub}")"
+
+  docker "$cmd" "${registry}${image}"
+
+  [[ "${3:-}" == "rch" ]] && assume -un
+}
+
+clone_image() {
+  local src="$1"
+  local new_tag="$2"
+  local registry="${3:-dockerhub}"
+
+  IFS=: read -r name tag <<<"$src"
+  pull_push pull "$name:$tag" "$registry"
+  docker tag "$(get_registry "$registry")$name:$tag" \
+             "$(get_registry "$registry")$name:$new_tag"
+  pull_push push "$name:$new_tag" "$registry"
+}
+
+ensure_completion() {
+  local shell="$SHELL_TYPE"
+  local file
+
+  case "$shell" in
+    bash) file="$HOME/.local/share/bash-completion/completions/docker" ;;
+    zsh)
+      file="$HOME/.docker/completions/_docker"
+      mkdir -p "$HOME/.docker/completions"
+      ;;
+  esac
+
+  if [ ! -f "$file" ] || [ "$file" -ot "$(command -v docker)" ]; then
+    docker completion "$shell" >"$file"
+  fi
+}
+
+case "${1:-}" in
+  pull|push)
+    pull_push "$@"
+    ;;
+  clone)
+    clone_image "$2" "$3" "$4"
+    ;;
+  *)
+    usage
+    ;;
+esac
