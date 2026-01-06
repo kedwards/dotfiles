@@ -11,16 +11,14 @@ __load_git_tools() {
 [ -f "${BMA_HOME:-$HOME/.bash-my-aws}/aliases" ] &&
   source "${BMA_HOME:-$HOME/.bash-my-aws}/aliases"
 
-alias l='ls -laF'
+alias assume='source assume'
 alias dpp='__load_docker_tools; pull_push_image'
-alias wt='__load_git_tools; worktree'
+alias l='ls -laF'
 alias myip='net-tools myip'
-alias t='tmux-tools'
+alias wt='__load_git_tools; worktree'
 
 clone() { __load_git_tools; clone_repository "$@"; }
 
-
-# Docker
 if command -v docker &>/dev/null; then
   # Container Analysis
   alias dive="docker run -ti --rm -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
@@ -44,7 +42,6 @@ fi
 
 {{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
 
-# pacman
 if command -v pacman &>/dev/null; then
   # install package
   alias paci='sudo pacman -S'
@@ -70,7 +67,6 @@ if command -v pacman &>/dev/null; then
   alias paccc='sudo pacman -Scc' # empty the whole cache
 fi
 
-# yay
 if command -v yay &>/dev/null; then
   # install
   alias yayi='yay -S'
