@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+# uva - Create & activate project Python venv via uv + mise
+set -euo pipefail
+
+PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$HOME/.virtualenvs}"
+mise_cmd="$(command -v mise || true)"
+uv_cmd="$(command -v uv || true)"
+
+if [[ -z "$mise_cmd" ]]; then
+  echo "Error: mise not found in PATH" >&2
+  exit 1
+fi
+
+if [[ -z "$uv_cmd" ]]; then
+  echo "Error: uv not found in PATH" >&2
+  exit 1
+fi
+
+uva() {
+  local name mise_file venv_path
+  name="${1:-$(basename "$PWD")}"
+  mise_file="mise.toml"
+  venv_path="$PYTHON_VENV_DIR/$name"
+
+  mkdir -p "$PYTHON_VENV_DIR"
+
+  if [ ! -d "$venv_path" ]; then
+    uv venv "$venv_path"
+  fi
+
+  # Write/update mise.toml
+  if [ ! -f "$mise_file" ]; then
+    cat <<EOF >"$mise_file"
+[env]
+_.python.venv = "$venv_path"
+EOF
+  else
+    if ! grep -q "^\[env\]" "$mise_file"; then
+      {
+        echo
+        echo "[env]"
+        echo "_.python.venv = \"$venv_path\""
+      } >>"$mise_file"
+    elif grep -q "^_.python.venv" "$mise_file"; then
+      sed -i "s|^_.python.venv *=.*|_.python.venv = \"$venv_path\"|" "$mise_file"
+    else
+      awk -v newline="_.python.venv = \"$venv_path\"" '
+        BEGIN { inserted = 0 }
+        {
+          print $0
+          if ($0 ~ /^\[env\]/ && !inserted) {
+            print newline
+            inserted = 1
+          }
+        }
+      ' "$mise_file" >"$mise_file.tmp" && mv "$mise_file.tmp" "$mise_file"
+    fi
+  fi
+
+  mise trust || true
+
+  # shellcheck source=/dev/null
+  . "$venv_path/bin/activate"
+  echo "[uva] activated venv: $venv_path"
+}
+
+case "${1:-}" in
+  *) uva "$@";;
+esac
