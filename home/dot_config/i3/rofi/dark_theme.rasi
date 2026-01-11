@@ -1,15 +1,18 @@
-// Dark Transparent Theme
-// ======================
+/*******************************************************
+ * Rofi Dark Transparent theme
+ *******************************************************/
 
 * {
   /* -------------------------------------------------
-   * Base palette (design tokens)
+   * Base palette
    * ------------------------------------------------- */
-  bg:        rgba(45, 48, 59, 90%);
+  bg:        rgba(45, 48, 59, 88%);
   fg:        rgba(196, 203, 212, 100%);
-  accent:    rgba(255, 147, 5, 100%);
   border:    rgba(124, 131, 137, 100%);
-  separator: rgba(45, 48, 59, 50%);
+  separator: rgba(45, 48, 59, 1%);
+
+  background: @bg;
+  background-color: @bg;
 
   red:       rgba(220, 50, 47, 100%);
   blue:      rgba(38, 139, 210, 100%);
@@ -21,27 +24,23 @@
   active-foreground:   rgba(101, 172, 255, 100%);
   urgent-foreground:   rgba(204, 102, 102, 100%);
 
+  selected-normal-foreground:  rgba(255, 147, 5, 100%);   /* gold accent */
+  selected-active-foreground:  rgba(249, 249, 249, 100%);
+  selected-urgent-foreground:  rgba(249, 249, 249, 100%);
+
   /* -------------------------------------------------
    * Background roles
    * ------------------------------------------------- */
-  normal-background:   @bg;
-  active-background:   rgba(29, 31, 33, 17%);
-  urgent-background:   rgba(45, 48, 59, 15%);
+  normal-background:    rgba(45, 48, 59, 1%);
+  active-background:    rgba(29, 31, 33, 17%);
+  urgent-background:    rgba(45, 48, 59, 15%);
+
+  selected-normal-background:  rgba(24, 26, 32, 100%);
+  selected-active-background:  rgba(26, 28, 35, 100%);
+  selected-urgent-background:  rgba(165, 66, 66, 100%);
 
   /* -------------------------------------------------
-   * Selected states
-   * ------------------------------------------------- */
-  selected-normal-background: @bg;
-  selected-normal-foreground: @accent;
-
-  selected-active-background: rgba(26, 28, 35, 100%);
-  selected-active-foreground: rgba(249, 249, 249, 100%);
-
-  selected-urgent-background: rgba(165, 66, 66, 100%);
-  selected-urgent-foreground: rgba(249, 249, 249, 100%);
-
-  /* -------------------------------------------------
-   * Alternates
+   * Alternates (striped rows)
    * ------------------------------------------------- */
   alternate-normal-background: rgba(45, 48, 59, 1%);
   alternate-normal-foreground: @fg;
@@ -57,16 +56,13 @@
  * Window
  * ------------------------------------------------- */
 window {
-  font: "JetBrainsMono Nerd Font 10";
   background-color: @bg;
   border: 1px;
-  border-color: @border;
   padding: 5px;
-  spacing: 4;
 }
 
 /* -------------------------------------------------
- * Layout containers
+ * Containers / layout
  * ------------------------------------------------- */
 mainbox {
   border: 0;
@@ -81,12 +77,12 @@ mode-switcher {
 }
 
 /* -------------------------------------------------
- * List elements
+ * List items
  * ------------------------------------------------- */
 listview {
   fixed-height: false;
   spacing: 2px;
-  scrollbar: false;
+  scrollbar: true;
   padding: 2px 0px 0px;
 }
 
@@ -97,7 +93,6 @@ element {
 element-text {
   background-color: inherit;
   text-color: inherit;
-  ellipsize: "end";
 }
 
 /* -------------------------------------------------
@@ -174,5 +169,6 @@ textbox-prompt-colon {
  * ------------------------------------------------- */
 scrollbar {
   width: 4px;
+  handle-width: 8px;
   handle-color: @normal-foreground;
 }
