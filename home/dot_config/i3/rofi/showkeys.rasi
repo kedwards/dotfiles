@@ -1,0 +1,26 @@
+// i3 showkeys
+@theme "dark_theme.rasi"
+
+configuration {
+    show-icons:       false;
+    scroll-method:    0;
+    disable-history:  true;
+    fullscreen:       false;
+    hide-scrollbar:   true;
+    sidebar-mode:     false;
+}
+
+window {
+    width:    480px;
+    location: center;
+    anchor:   center;
+}
+
+listview {
+    lines:   10;
+    columns: 1;
+}
+
+mainbox {
+    children: [ listview ];
+}
