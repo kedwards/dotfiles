@@ -6,7 +6,7 @@ lock_cmd() {
   require magick
 
   if command -v scrot >/dev/null 2>&1; then
-    screenshot() { scrot -z "$1"; }
+    screenshot() { scrot -zo "$1"; }
   elif command -v maim >/dev/null 2>&1; then
     screenshot() { maim "$1"; }
   else
@@ -15,7 +15,7 @@ lock_cmd() {
 
   local img
   img="$(mktemp "${XDG_RUNTIME_DIR:-/tmp}/i3lock.XXXXXX.png")"
-  trap 'rm -f "$img"' EXIT INT TERM
+  trap "rm -f '$img'" EXIT INT TERM
 
   screenshot "$img"
   magick "$img" -blur 5x4 "$img"
