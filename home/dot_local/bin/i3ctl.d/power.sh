@@ -83,7 +83,7 @@ power_profile_menu() {
     case "$profile" in
       performance) label="⚡ Performance" ;;
       balanced)    label="⚖ Balanced" ;;
-      power-saver) label="🔋 Power Saver" ;;
+      power-saver) label=" Power Saver" ;;
       *)           label="$profile" ;;
     esac
 
