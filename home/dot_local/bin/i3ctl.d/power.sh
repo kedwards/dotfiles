@@ -50,7 +50,10 @@ power_menu() {
     | rofi -dmenu -i -p "Power Menu" -theme "$theme")"
 
   case "$choice" in
-    "$lock")      i3ctl lock ;;
+    "$lock")
+      # Detach lock from this process tree so i3lock can handle input properly
+      setsid "$HOME/.local/bin/i3ctl" lock < /dev/null &> /dev/null &
+      ;;
     "$logout")    i3-msg exit ;;
     "$reboot")    systemctl reboot ;;
     "$shutdown")  systemctl poweroff ;;
