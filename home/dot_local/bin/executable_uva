@@ -3,7 +3,7 @@
 # uva - Create & activate project Python venv via uv + mise
 set -euo pipefail
 
-PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$HOME/.virtualenvs}"
+PYTHON_VENV_DIR="${PYTHON_VENV_DIR:-$HOME/.venv}"
 mise_cmd="$(command -v mise || true)"
 uv_cmd="$(command -v uv || true)"
 
