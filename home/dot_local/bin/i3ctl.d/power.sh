@@ -72,7 +72,8 @@ power_profile_menu() {
   local current
   current="$(powerprofilesctl get 2>/dev/null || true)"
 
-  mapfile -t profiles < <(powerprofilesctl list | awk '{print $1}')
+  # mapfile -t profiles < <(powerprofilesctl list | awk '{print $1}')
+  mapfile -t profiles < <(powerprofilesctl list | awk -F: '/^[* ]*[a-zA-Z0-9-]+:$/ {gsub(/[* ]/, "", $1); print $1}')
 
   [[ ${#profiles[@]} -gt 0 ]] || die "No power profiles available"
 
