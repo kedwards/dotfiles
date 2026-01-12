@@ -32,7 +32,7 @@ case "$ACTION" in
     ;;
   power)
     source "$BASE_DIR/power.sh"
-    power_cmd
+    power_cmd "$@"
     ;;
   keys)
     source "$BASE_DIR/keys.sh"
