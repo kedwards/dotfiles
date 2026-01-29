@@ -8,4 +8,4 @@ require("lsp.diagnostics").init()
 require("lsp.commands").setup()
 
 -- lsp loader
-require("lsp.loader").setup({ ensure_installed = true })
+require("lsp.loader").setup({ debugging = false, ensure_installed = true })

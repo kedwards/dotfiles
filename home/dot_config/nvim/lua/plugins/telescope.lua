@@ -16,7 +16,7 @@ return {
 			{ "<leader>f<space>", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
 			{ "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Files" },
 			{ "<leader>fg", "<cmd>Telescope git_files<cr>", desc = "Git" },
-			{ "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help" },
+			{ "<leader>fh", "<cmd>Telescope find_files hidden=true<cr>", desc = "Files (hidden)" },
 			{ "<leader>fb", "<cmd>Telescope file_browser<cr>", desc = "Browsers" },
 			{ "<leader>fa", "<cmd>Telescope resume<cr>", desc = "Repeat search" },
 			{ "<leader>fo", "<cmd>Telescope oldfiles<cr>", desc = "Old files" },

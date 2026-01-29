@@ -9,17 +9,28 @@ return {
 			name = "yaml-language-server",
 			settings = {
 				yaml = {
-					schemaStore = {
-						enable = false,
-						url = "",
+					customTags = {
+						"!And sequence",
+						"!Base64 scalar",
+						"!Cidr sequence",
+						"!Equals sequence",
+						"!FindInMap sequence",
+						"!GetAtt scalar",
+						"!GetAtt sequence",
+						"!GetAZs scalar",
+						"!If sequence",
+						"!ImportValue scalar",
+						"!Join sequence",
+						"!Not sequence",
+						"!Or sequence",
+						"!Ref scalar",
+						"!Select sequence",
+						"!Split sequence",
+						"!Sub scalar",
+						"!Sub sequence",
+						"!Condition scalar",
 					},
-					schemas = require("schemastore").yaml.schemas(),
 				},
-				-- yamlls = {
-				-- 	schemas = {
-				-- 		["http://json.schemastore.org/ansible-2.9"] = "playbook.yml",
-				-- 	},
-				-- },
 			},
 		},
 	},
