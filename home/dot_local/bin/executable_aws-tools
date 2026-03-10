@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+  # Only set strict mode when executed, not when sourced
+  set -euo pipefail
+fi
+
+usage() {
+  cat <<EOF
+aws-tools
+
+Commands:
+  run <command> [filter]    Run a command against AWS profiles
+  get-instance <id|name>    Resolve instance ID(s) by name or ID
+  list-profiles             List all AWS profiles from configuration
+  store-creds <env>         Export AWS credentials for <env> into the current shell
+  use-creds                 Re-apply stored credentials (AK/SK/ST) as AWS_ env vars
+EOF
+}
+
+# Get instance id by tag Name
+get_instance_id_by_name() {
+  local instanceName="$1"
+  aws ec2 describe-instances \
+    --filter "Name=tag:Name,Values=\"$instanceName\"" \
+    --query "Reservations[].Instances[?State.Name == 'running'].InstanceId[]" \
+    --output text
+}
+
+# Resolve instance id(s) from names or IDs
+get_instance() {
+  local instanceArray instances=""
+
+  case "$(uname -s)" in
+    Linux*)  readarray -t instanceArray <<< "$1" ;;
+    Darwin*) instanceArray=("${(@f)$("$1")}") ;;
+  esac
+
+  for instanceIdentifier in "${instanceArray[@]}"; do
+    if [[ "${instanceIdentifier:0:2}" == "i-" ]]; then
+      local instance_id
+      instance_id=$(aws ec2 describe-instances \
+        --instance-ids "$instanceIdentifier" \
+        --query "Reservations[].Instances[?State.Name == 'running'].InstanceId[]" \
+        --output text)
+      instances+="$instance_id "
+    else
+      local iid
+      iid=$(get_instance_id_by_name "$instanceIdentifier")
+      instances+="$iid "
+    fi
+  done
+  echo "$instances"
+}
+
+# List all AWS profiles in configuration
+list_profiles() {
+  grep 'profile' "$HOME/.aws/config" | awk '{ print substr($2,1,length($2)-1) }'
+}
+
+# Export AWS credentials for an env into the current shell
+store_creds() {
+  local env="${1:-}"
+  if [[ -z "$env" || "$env" == "-h" || "$env" == "--help" ]]; then
+    cat <<EOF
+Usage: aws-tools store-creds <env>
+  Exports AWS credentials for <env> into the current shell.
+  Requires: assume (granted)
+
+Examples:
+  eval "\$(aws-tools store-creds myenv)"
+EOF
+    return
+  fi
+
+  if ! command -v assume >/dev/null 2>&1; then
+    echo "[ERROR] 'assume' not found in PATH" >&2
+    return 1
+  fi
+
+  local creds
+  creds="$(assume "$env" --exec env | awk -F= '
+    /^AWS_ACCESS_KEY_ID=/ ||
+    /^AWS_SECRET_ACCESS_KEY=/ ||
+    /^AWS_SESSION_TOKEN=/ ||
+    /^AWS_REGION=/ {
+      print "export " $1 "=\"" $2 "\""
+    }
+  ')"
+
+  # Eval into current (sub)shell so vars are available for substitution below
+  eval "$creds"
+
+  cat <<EOF
+$creds
+export AK="$AWS_ACCESS_KEY_ID"
+export SK="$AWS_SECRET_ACCESS_KEY"
+export ST="$AWS_SESSION_TOKEN"
+EOF
+}
+
+# Re-apply stored short-alias creds (AK/SK/ST) as full AWS_ env vars
+use_creds() {
+  printf 'export AWS_ACCESS_KEY_ID="%s" AWS_SECRET_ACCESS_KEY="%s" AWS_SESSION_TOKEN="%s"\n' \
+    "${AK:-}" "${SK:-}" "${ST:-}"
+}
+
+# Run a command against one or more AWS profiles
+run_against_profiles() {
+  if [[ -z "${1:-}" || "$1" == "--help" || "$1" == "-h" ]]; then
+    cat <<EOF
+Usage: aws-tools run <command> [filter]
+  Filter entries can be env names or env:region pairs.
+  When a region is specified, assume is called with --region.
+
+Examples:
+  aws-tools run "aws ec2 describe-vpcs --query 'Vpcs[*][CidrBlock, OwnerId]' --output table" "fail how"
+  aws-tools run "aws ec2 describe-vpcs --output table" "fail:us-east-1 how:us-west-2"
+  aws-tools run "aws rds describe-db-instances --query 'DBInstances[*].[DBInstanceIdentifier,Engine,EngineVersion,DBClusterIdentifier]' --output table" ninja
+  aws-tools run "aws ssm get-parameters --names '/ec2/ami/engine/ami-id' --region #REGION --query 'Parameters[*].[Name,Value]' --output table" "coffee wine rocks:us-west-2"
+EOF
+    return
+  fi
+
+  local entries=()
+  if [[ -n "${2:-}" ]]; then
+    read -r -a entries <<< "$2"
+  else
+    read -r -a entries <<< "$(list_profiles)"
+  fi
+
+  for entry in "${entries[@]}"; do
+    local profile="${entry%%:*}"
+    local region="${entry#*:}"
+    [[ "$region" == "$entry" ]] && region="us-east-1"
+
+    source assume "$profile" --region "$region"
+
+    echo "$profile"
+    local command="${1/'#ENV'/$profile}"
+    command="${command/'#REGION'/$region}"
+
+    # Parse command for instance names and replace with instance IDs
+    local co=()
+    IFS=', ' read -r -a co <<< "$command"
+    if [[ "${co[0]:-}" == 'x' || "${co[0]:-}" == 'aws_ssm_command' ]]; then
+      local inst
+      inst=$(get_instance "${co[1]}")
+      command="${command/${co[1]}/$inst}"
+    fi
+
+    eval "$command"
+  done
+}
+
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+  # sourced
+  alias aws-run='run_against_profiles'
+  alias aws-get-instance='get_instance'
+  alias aws-list-profiles='list_profiles'
+  aws-store-creds() { eval "$(store_creds "$@")"; }
+  aws-use-creds()   { eval "$(use_creds)"; }
+else
+  case "${1:-}" in
+    run)           shift; run_against_profiles "$@" ;;
+    get-instance)  shift; get_instance "$@" ;;
+    list-profiles) list_profiles ;;
+    store-creds)   shift; store_creds "$@" ;;
+    use-creds)     use_creds ;;
+    *)             usage ;;
+  esac
+fi
