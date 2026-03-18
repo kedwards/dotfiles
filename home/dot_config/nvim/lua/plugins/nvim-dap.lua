@@ -11,7 +11,6 @@ return {
 						enabled = true,
 					},
 				},
-				windows = { height = 18 },
 				switchbuf = "usetab,uselast",
 			},
 		},

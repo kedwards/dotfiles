@@ -4,12 +4,14 @@ return {
 		opts = {
 			projects = {
 				"~/projects/*",
+				"~/projects/reach-platform/*",
 				"~/.config/*",
 				"~/.profile.d/*",
 			},
 			picker = {
 				type = "telescope",
 			},
+			per_branch_sessions = true,
 		},
 		init = function()
 			vim.opt.sessionoptions:append("globals", "localoptions")
