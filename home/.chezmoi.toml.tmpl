@@ -26,4 +26,5 @@ encryption = "gpg"
     args = ["init"]
 
 [hooks.read-source-state.pre]
-    command = "$HOME/.local/share/chezmoi/.install-password-manager.sh"
+    command = "/bin/sh"
+    args = ["-c", "exec \"$HOME/.local/share/chezmoi/.chezmoiscripts/.install-password-manager.sh\""]
