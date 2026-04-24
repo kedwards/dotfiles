@@ -24,3 +24,6 @@ encryption = "gpg"
 [hooks.edit-config-template.post]
     command = "chezmoi"
     args = ["init"]
+
+[hooks.read-source-state.pre]
+    command = "$HOME/.local/share/chezmoi/.install-password-manager.sh"
