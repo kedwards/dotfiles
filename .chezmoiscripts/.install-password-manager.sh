@@ -66,13 +66,6 @@ case "$(uname -s)" in
         fi
         ;;
       *arch*)
-        latest_version="$(curl -fsSL https://app-updates.agilebits.com/product_history/CLI2 | awk '/^### [0-9]+\.[0-9]+\.[0-9]+/ { print $2; exit }')"
-
-        [ -n "$latest_version" ] || {
-          echo "failed to determine latest 1Password CLI version"
-          exit 1
-        }
-
         case "$arch" in
           x86_64|amd64) zip_arch="amd64" ;;
           i386|i686) zip_arch="386" ;;
@@ -84,8 +77,14 @@ case "$(uname -s)" in
             ;;
         esac
 
-        curl -fsSLo "$tmpdir/op.zip" \
-          "https://cache.agilebits.com/dist/1P/op2/pkg/v${latest_version}/op_linux_${zip_arch}_v${latest_version}.zip"
+        download_url="$(curl -fsSL https://app-updates.agilebits.com/product_history/CLI2 | tr '\n' ' ' | grep -oE "https://cache\.agilebits\.com/dist/1P/op2/pkg/v[0-9]+\.[0-9]+\.[0-9]+/op_linux_${zip_arch}_v[0-9]+\.[0-9]+\.[0-9]+\.zip" | sed -n '1p')"
+
+        [ -n "$download_url" ] || {
+          echo "failed to determine latest 1Password CLI download URL"
+          exit 1
+        }
+
+        curl -fsSLo "$tmpdir/op.zip" "$download_url"
 
         if command -v unzip >/dev/null 2>&1; then
           unzip -q "$tmpdir/op.zip" -d "$tmpdir"
