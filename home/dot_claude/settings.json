@@ -1,0 +1,11 @@
+{
+  "theme": "dark",
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline-command.sh",
+    "padding": 0,
+    "refreshInterval": 10
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "model": "haiku"
+}
