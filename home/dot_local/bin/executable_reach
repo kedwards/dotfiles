@@ -6,7 +6,7 @@ SCRIPT_NAME="$(basename "$0")"
 usage() {
   cat <<EOF
 Usage:
-  $SCRIPT_NAME <target> <env> [config] [region] [tags] [dr_deploy]
+  $SCRIPT_NAME <target> <env> [config] [region] [tags] [dr_deploy] [service]
 
 Arguments:
   target      Ansible target
@@ -15,17 +15,25 @@ Arguments:
   region      AWS region (default: us-east-1)
   tags        Ansible tags
   dr_deploy   DR deploy flag
+  service     Service name (default: setup)
 
 Examples:
   $SCRIPT_NAME plan ps
   $SCRIPT_NAME apply prod release us-east-1 db
+  $SCRIPT_NAME apply prod release us-east-1 db "" publish
 EOF
 }
 
-log()  { echo "[INFO] $*" >&2; }
-err()  { echo "[ERROR] $*" >&2; exit 1; }
+log() { echo "[INFO] $*" >&2; }
+err() {
+  echo "[ERROR] $*" >&2
+  exit 1
+}
 
-[[ $# -lt 2 ]] && { usage; exit 1; }
+[[ $# -lt 2 ]] && {
+  usage
+  exit 1
+}
 
 TARGET="$1"
 PROFILE="$2"
@@ -33,14 +41,15 @@ CONFIG="${3:-main}"
 REGION="${4:-us-east-1}"
 TAGS="${5:-}"
 DR_DEPLOY="${6:-}"
+SERVICE="${7:-setup}"
 
 command -v assume >/dev/null || err "'assume' not found"
-command -v make   >/dev/null || err "'make' not found"
+command -v make >/dev/null || err "'make' not found"
 
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 log "Loading base credentials (ps)"
-eval "$("$BIN_DIR/store-credentials" ps)"
+eval "$("$BIN_DIR/awst" creds store rch-platform-prod-support)"
 
 log "Assuming target profile: $PROFILE"
 assume "$PROFILE"
@@ -62,7 +71,7 @@ trap cleanup EXIT
     ENV="$PROFILE" \
     REGION="$REGION" \
     CONFIG="$CONFIG" \
-    SERVICE="setup" \
+    SERVICE="$SERVICE" \
     EXTRA_VARS="ps_aws_access_key_id=$AK ps_aws_secret_access_key=$SK ps_aws_session_token=$ST dr_deploy=$DR_DEPLOY" \
     RUNTAG="$TAGS"
 )
