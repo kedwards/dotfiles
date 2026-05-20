@@ -1,11 +1,22 @@
 {
-  "theme": "dark",
+  "model": "haiku",
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline-command.sh",
     "padding": 0,
     "refreshInterval": 10
   },
+  "extraKnownMarketplaces": {
+    "claude-code-warp": {
+      "source": {
+        "source": "github",
+        "repo": "warpdotdev/claude-code-warp"
+      }
+    }
+  },
   "skipDangerousModePermissionPrompt": true,
-  "model": "haiku"
+  "theme": "dark",
+  "enabledPlugins": {
+    "warp@claude-code-warp": true
+  }
 }
