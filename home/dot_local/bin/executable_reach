@@ -64,7 +64,7 @@ trap cleanup EXIT
   unset AWS_PROFILE
 
   export ANSIBLE_PYTHON_INTERPRETER
-  ANSIBLE_PYTHON_INTERPRETER="$(mise which python)"
+  ANSIBLE_PYTHON_INTERPRETER="$(which python)"
 
   log "Running Ansible target '$TARGET'"
   make -C infra/ansible "$TARGET" \
