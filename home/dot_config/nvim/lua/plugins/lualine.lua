@@ -14,10 +14,6 @@ return {
 			local icon = devicons.get_icon_by_filetype(vim.bo.filetype)
 
 			if lsps and #lsps > 0 then
-				local names = {}
-				for _, lsp in ipairs(lsps) do
-					table.insert(names, lsp.name)
-				end
 				return string.format("%s", icon)
 			-- return string.format("%s %s", table.concat(names, ", "), icon)
 			-- return string.format("%s", table.concat(names, ", "))

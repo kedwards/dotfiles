@@ -97,17 +97,6 @@ end
 
 --- Setup diagnostic keymaps
 function M.setup_keymaps()
-	-- Diagnostic navigation helper
-	local function diagnostic_nav(direction, opts)
-		opts = opts or { float = true }
-
-		return function()
-			vim.diagnostic.jump(vim.tbl_extend("force", opts, {
-				count = direction == "next" and 1 or -1,
-			}))
-		end
-	end
-
 	local map = vim.keymap.set
 	local opts = { noremap = true, silent = true }
 

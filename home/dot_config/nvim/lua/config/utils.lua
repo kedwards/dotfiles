@@ -1,7 +1,7 @@
 local M = {}
 
 -- Detect system PATH separator (":" on Unix, ";" on Windows)
-local PATH_SEP = package.config:sub(1, 1) == "\\" and ";" or ":"
+local PATH_SEP = vim.fn.has("win32") == 1 and ";" or ":"
 
 --- Normalize, expand, and validate a path string
 --- @param path string Path to normalize

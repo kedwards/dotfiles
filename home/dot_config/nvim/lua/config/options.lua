@@ -141,11 +141,8 @@ return function()
 				-- Improve performance
 				cache_enabled = 1,
 			}
-		elseif vim.fn.has("macunix") == 1 then
-			-- macOS clipboard
-			opt.clipboard = "unnamedplus"
-		elseif vim.fn.executable("xclip") == 1 or vim.fn.executable("xsel") == 1 then
-			-- Linux with X11
+		elseif vim.fn.has("macunix") == 1 or vim.fn.executable("xclip") == 1 or vim.fn.executable("xsel") == 1 then
+			-- macOS or Linux with X11
 			opt.clipboard = "unnamedplus"
 		else
 			-- Fallback - no system clipboard
