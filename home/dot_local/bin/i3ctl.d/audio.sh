@@ -23,10 +23,10 @@ audio_cmd() {
 
     for i in "${!sinks[@]}"; do
       if [[ "${sinks[$i]}" == "$current" ]]; then
-        next="${sinks[$(( (i + 1) % ${#sinks[@]} ))]}"
+        next="${sinks[$(((i + 1) % ${#sinks[@]}))]}"
         pactl set-default-sink "$next"
-        pactl list short sink-inputs | awk '{print $1}' \
-          | xargs -r -n1 pactl move-sink-input "$next"
+        pactl list short sink-inputs | awk '{print $1}' |
+          xargs -r -n1 pactl move-sink-input "$next"
         return
       fi
     done

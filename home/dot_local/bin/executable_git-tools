@@ -67,7 +67,7 @@ if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
   # sourced
   alias clone='clone_repository'
   alias wt='worktree'
-  
+
   # Set up git-worktree-wrapper if available
   if command -v git-worktree-wrapper.sh >/dev/null 2>&1; then
     export DISABLE_GIT_WORKTREE_EDITOR=1
@@ -83,8 +83,14 @@ if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
   fi
 else
   case "$1" in
-    clone) shift; clone_repository "$@" ;;
-    worktree|wt) shift; worktree "$@" ;;
+    clone)
+      shift
+      clone_repository "$@"
+      ;;
+    worktree | wt)
+      shift
+      worktree "$@"
+      ;;
     *) echo "git-tools clone|worktree" ;;
   esac
 fi

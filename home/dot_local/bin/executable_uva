@@ -66,5 +66,5 @@ EOF
 }
 
 case "${1:-}" in
-  *) uva "$@";;
+  *) uva "$@" ;;
 esac

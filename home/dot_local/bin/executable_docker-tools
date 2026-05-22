@@ -22,7 +22,7 @@ EOF
 
 get_registry() {
   case "${1:-dockerhub}" in
-    dockerhub|"") echo "" ;;
+    dockerhub | "") echo "" ;;
     rch)
       assume ps
       echo "003756058538.dkr.ecr.us-east-1.amazonaws.com/"
@@ -50,7 +50,7 @@ clone_image() {
   IFS=: read -r name tag <<<"$src"
   pull_push pull "$name:$tag" "$registry"
   docker tag "$(get_registry "$registry")$name:$tag" \
-             "$(get_registry "$registry")$name:$new_tag"
+    "$(get_registry "$registry")$name:$new_tag"
   pull_push push "$name:$new_tag" "$registry"
 }
 
@@ -72,7 +72,7 @@ ensure_completion() {
 }
 
 case "${1:-}" in
-  pull|push)
+  pull | push)
     pull_push "$@"
     ;;
   clone)

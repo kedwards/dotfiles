@@ -46,12 +46,12 @@ display_cmd() {
       # External dual monitors + laptop panel
       has_output DP-1-2 || die "Output DP-1-2 not found"
       has_output DP-1-3 || die "Output DP-1-3 not found"
-      has_output eDP-1  || die "Output eDP-1 not found"
+      has_output eDP-1 || die "Output eDP-1 not found"
 
       xrandr \
         --output DP-1-2 --primary --mode 1920x1080 --pos 0x0 --rotate normal \
         --output DP-1-3 --mode 1920x1080 --pos 1920x0 --rotate normal \
-        --output eDP-1  --mode 2560x1600 --pos 960x1080 --rotate normal
+        --output eDP-1 --mode 2560x1600 --pos 960x1080 --rotate normal
       ;;
     laptop)
       # Laptop only

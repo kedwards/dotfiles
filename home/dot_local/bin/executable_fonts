@@ -62,15 +62,15 @@ install_nerd_font() {
   local date_stamp=$(date +"%F_%H-%M-%S")
   local font_zip="${font}.zip"
   local font_url="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/$font.zip"
-  
+
   echo "[INFO] Installing font: $font"
-  
+
   # Create fonts directory
   if ! mkdir -p "$HOME/.fonts"; then
     echo "[ERROR] Failed to create fonts directory: $HOME/.fonts"
     return 1
   fi
-  
+
   # Download font with error handling
   echo "[INFO] Downloading $font from GitHub..."
   if ! $cmd "$font_zip" "$font_url"; then
@@ -78,21 +78,21 @@ install_nerd_font() {
     echo "Please check your internet connection and try again."
     return 1
   fi
-  
+
   # Verify download
   if [ ! -f "$font_zip" ] || [ ! -s "$font_zip" ]; then
     echo "[ERROR] Downloaded file is missing or empty: $font_zip"
     rm -f "$font_zip" 2>/dev/null
     return 1
   fi
-  
+
   # Create font-specific directory
   if ! mkdir -p "$HOME/.fonts/$font"; then
     echo "[ERROR] Failed to create font directory: $HOME/.fonts/$font"
     rm -f "$font_zip"
     return 1
   fi
-  
+
   # Extract font with error handling
   echo "[INFO] Extracting $font..."
   if ! unzip -q "$font_zip" -d "$HOME/.fonts/$font/" 2>/dev/null; then
@@ -101,40 +101,40 @@ install_nerd_font() {
     rm -rf "$HOME/.fonts/$font"
     return 1
   fi
-  
+
   # Update font cache
   echo "[INFO] Updating font cache..."
   if ! fc-cache -fv >/dev/null 2>&1; then
     echo "[WARNING] Failed to update font cache, but font was installed"
   fi
-  
+
   # Clean up
   rm -f "$font_zip"
-  
+
   # Record installation
   echo "$font $date_stamp" >>"$HOME/.fonts/_sysinit_font.lock"
-  
+
   echo "[SUCCESS] Font '$font' installed successfully!"
   echo "[INFO] Restart your terminal or applications to use the new font."
 }
 
 list_installed_fonts() {
   local lock_file="$HOME/.fonts/_sysinit_font.lock"
-  
+
   if [ ! -f "$lock_file" ]; then
     echo "[INFO] No fonts installed with this script."
     echo "Use 'inf' or 'install_nerd_font' to install fonts."
     return 0
   fi
-  
+
   if [ ! -r "$lock_file" ]; then
     echo "[ERROR] Cannot read lock file: $lock_file"
     return 1
   fi
-  
+
   echo "Fonts installed by this script:"
   echo "================================"
-  
+
   # Display fonts with installation dates
   while IFS=' ' read -r font_name install_date || [ -n "$font_name" ]; do
     if [ -n "$font_name" ]; then
@@ -144,8 +144,8 @@ list_installed_fonts() {
         echo "✗ $font_name (installed: $install_date) [DIRECTORY MISSING]"
       fi
     fi
-  done < "$lock_file"
-  
+  done <"$lock_file"
+
   echo ""
   echo "Use 'rnf' or 'remove_nerd_font' to remove fonts."
 }
@@ -188,7 +188,7 @@ remove_nerd_font() {
       return 1
     fi
   fi
-  
+
   # Update font cache
   if command -v fc-cache >/dev/null 2>&1; then
     echo "[INFO] Updating font cache..."
@@ -196,13 +196,13 @@ remove_nerd_font() {
       echo "[WARNING] Failed to update font cache"
     fi
   fi
-  
+
   # Remove from lock file
   if [ -f "$HOME/.fonts/_sysinit_font.lock" ]; then
     if ! sed -i "/^$font /d" "$HOME/.fonts/_sysinit_font.lock" 2>/dev/null; then
       echo "[WARNING] Failed to update lock file"
     fi
   fi
-  
+
   echo "[SUCCESS] Font '$font' removed successfully!"
 }

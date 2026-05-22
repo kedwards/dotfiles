@@ -46,7 +46,7 @@ case "$ACTION" in
     source "$BASE_DIR/doctor.sh"
     doctor_cmd
     ;;
-  -h|--help|"")
+  -h | --help | "")
     i3ctl_help
     ;;
   *)

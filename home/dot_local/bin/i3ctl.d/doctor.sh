@@ -15,9 +15,12 @@ doctor_cmd() {
     echo "▶ $*"
   }
 
-  ok()   { echo "  ✔ $*"; }
+  ok() { echo "  ✔ $*"; }
   warn() { echo "  ⚠ $*"; }
-  err()  { echo "  ✖ $*"; fail=1; }
+  err() {
+    echo "  ✖ $*"
+    fail=1
+  }
 
   have() {
     command -v "$1" >/dev/null 2>&1
@@ -25,9 +28,9 @@ doctor_cmd() {
 
   # --------------------------------------------------
   section "Core i3 environment"
-  have i3        && ok "i3 installed"        || err "i3 missing"
-  have i3-msg    && ok "i3-msg available"    || err "i3-msg missing"
-  have xsetroot  && ok "X utilities present" || warn "xsetroot missing"
+  have i3 && ok "i3 installed" || err "i3 missing"
+  have i3-msg && ok "i3-msg available" || err "i3-msg missing"
+  have xsetroot && ok "X utilities present" || warn "xsetroot missing"
 
   if [[ "$session" == "wayland" ]]; then
     warn "Wayland session detected — i3 config will not be used"
@@ -35,9 +38,9 @@ doctor_cmd() {
 
   # --------------------------------------------------
   section "Locking (xss-lock / i3ctl lock)"
-  have xss-lock  && ok "xss-lock installed" || warn "xss-lock missing (no suspend lock)"
-  have i3lock    && ok "i3lock installed"   || err "i3lock missing"
-  have magick    && ok "ImageMagick present"|| err "imagemagick (magick) missing"
+  have xss-lock && ok "xss-lock installed" || warn "xss-lock missing (no suspend lock)"
+  have i3lock && ok "i3lock installed" || err "i3lock missing"
+  have magick && ok "ImageMagick present" || err "imagemagick (magick) missing"
 
   if have scrot; then
     ok "scrot available for screenshots"
@@ -81,9 +84,9 @@ doctor_cmd() {
 
   # --------------------------------------------------
   section "Launchers & apps"
-  have rofi     && ok "rofi installed"     || warn "rofi missing"
-  have firefox  && ok "firefox installed"  || warn "firefox missing"
-  have thunar   && ok "thunar installed"   || warn "thunar missing"
+  have rofi && ok "rofi installed" || warn "rofi missing"
+  have firefox && ok "firefox installed" || warn "firefox missing"
+  have thunar && ok "thunar installed" || warn "thunar missing"
 
   if have i3-sensible-terminal; then
     ok "i3-sensible-terminal available"
@@ -98,14 +101,14 @@ doctor_cmd() {
 
   # --------------------------------------------------
   section "Cleanup tooling"
-  have lsof     && ok "lsof installed"     || warn "lsof missing"
-  have pgrep    && ok "procps available"   || warn "procps missing"
-  have find     && ok "findutils available"|| warn "findutils missing"
+  have lsof && ok "lsof installed" || warn "lsof missing"
+  have pgrep && ok "procps available" || warn "procps missing"
+  have find && ok "findutils available" || warn "findutils missing"
 
   # --------------------------------------------------
   section "Audio"
-  have pactl        && ok "pactl available" || err "pactl missing (pipewire-pulse or pulseaudio)"
-  have playerctl    && ok "playerctl available" || warn "playerctl missing (media keys)"
+  have pactl && ok "pactl available" || err "pactl missing (pipewire-pulse or pulseaudio)"
+  have playerctl && ok "playerctl available" || warn "playerctl missing (media keys)"
 
   # --------------------------------------------------
   section "Display"

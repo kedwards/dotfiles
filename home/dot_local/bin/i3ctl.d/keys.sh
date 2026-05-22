@@ -14,5 +14,5 @@ keys_cmd() {
     -i \
     -p "Keybindings" \
     -theme "$theme" \
-    < "$sheet"
+    <"$sheet"
 }

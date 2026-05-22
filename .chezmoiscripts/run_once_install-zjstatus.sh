@@ -22,9 +22,9 @@ mkdir -p "$INSTALL_DIR"
 log "Resolving latest release version..."
 
 LATEST_VERSION="$(
-  curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" \
-  | grep -Eo '"tag_name":\s*"[^"]+"' \
-  | cut -d'"' -f4
+  curl -fsSL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" |
+    grep -Eo '"tag_name":\s*"[^"]+"' |
+    cut -d'"' -f4
 )"
 
 [[ -n "$LATEST_VERSION" ]] || fail "Unable to determine latest release"

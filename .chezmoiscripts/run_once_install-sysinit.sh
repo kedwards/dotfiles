@@ -5,7 +5,7 @@ MARKER="# BEGIN sysinit: load custom profile settings"
 grep -Fq "$MARKER" ~/.bashrc && exit 0
 
 # Append the snippet
-cat <<'EOF' >> ~/.bashrc
+cat <<'EOF' >>~/.bashrc
 
 # BEGIN sysinit: load custom profile settings"
 if [ -d "$HOME/.profile.d" ]; then 

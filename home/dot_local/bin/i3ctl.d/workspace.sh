@@ -13,9 +13,9 @@ workspace_cmd() {
   # Active workspace numbers
   local used
   used="$(
-    i3-msg -t get_workspaces \
-      | tr ',' '\n' \
-      | awk -F: '/"num"/ {print int($2)}'
+    i3-msg -t get_workspaces |
+      tr ',' '\n' |
+      awk -F: '/"num"/ {print int($2)}'
   )"
 
   # Find first unused workspace

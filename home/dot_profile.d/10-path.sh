@@ -2,8 +2,8 @@
 
 path_add() {
   case ":$PATH:" in
-  *":$1:"*) ;; # already in PATH
-  *) PATH="$1:$PATH" ;;
+    *":$1:"*) ;; # already in PATH
+    *) PATH="$1:$PATH" ;;
   esac
 }
 

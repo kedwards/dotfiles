@@ -35,31 +35,32 @@ power_menu() {
   local hibernate="  Hibernate"
 
   local options
-  options=$(printf "%s\n" \
-    "$cancel" \
-    "$lock" \
-    "$logout" \
-    "$reboot" \
-    "$shutdown" \
-    "$suspend" \
-    "$hibernate"
+  options=$(
+    printf "%s\n" \
+      "$cancel" \
+      "$lock" \
+      "$logout" \
+      "$reboot" \
+      "$shutdown" \
+      "$suspend" \
+      "$hibernate"
   )
 
   local choice
-  choice="$(printf "%s" "$options" \
-    | rofi -dmenu -i -p "Power Menu" -theme "$theme")"
+  choice="$(printf "%s" "$options" |
+    rofi -dmenu -i -p "Power Menu" -theme "$theme")"
 
   case "$choice" in
     "$lock")
       # Detach lock from this process tree so i3lock can handle input properly
-      setsid "$HOME/.local/bin/i3ctl" lock < /dev/null &> /dev/null &
+      setsid "$HOME/.local/bin/i3ctl" lock </dev/null &>/dev/null &
       ;;
-    "$logout")    i3-msg exit ;;
-    "$reboot")    systemctl reboot ;;
-    "$shutdown")  systemctl poweroff ;;
-    "$suspend")   systemctl suspend ;;
+    "$logout") i3-msg exit ;;
+    "$reboot") systemctl reboot ;;
+    "$shutdown") systemctl poweroff ;;
+    "$suspend") systemctl suspend ;;
     "$hibernate") systemctl hibernate ;;
-    *)            exit 0 ;;
+    *) exit 0 ;;
   esac
 }
 
@@ -85,9 +86,9 @@ power_profile_menu() {
     local label
     case "$profile" in
       performance) label="⚡ Performance" ;;
-      balanced)    label="⚖ Balanced" ;;
+      balanced) label="⚖ Balanced" ;;
       power-saver) label=" Power Saver" ;;
-      *)           label="$profile" ;;
+      *) label="$profile" ;;
     esac
 
     if [[ "$profile" == "$current" ]]; then
@@ -99,13 +100,13 @@ power_profile_menu() {
 
   local choice
   choice="$(
-    printf "%s\n" "${entries[@]#*::}" \
-      | rofi -dmenu \
-          -markup-rows \
-          -i \
-          -p "Power Profile" \
-          -theme "$theme" \
-          -mesg "<b>Current:</b> $current"
+    printf "%s\n" "${entries[@]#*::}" |
+      rofi -dmenu \
+        -markup-rows \
+        -i \
+        -p "Power Profile" \
+        -theme "$theme" \
+        -mesg "<b>Current:</b> $current"
   )"
 
   [[ -n "$choice" ]] || exit 0
