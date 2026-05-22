@@ -2,17 +2,17 @@
 set -Eeuo pipefail
 
 keys_cmd() {
-  require rofi
+	require rofi
 
-  local theme="$HOME/.config/i3/rofi/showkeys.rasi"
-  local sheet="$HOME/.config/i3/keys/cheatsheet.txt"
+	local theme="$HOME/.config/i3/rofi/showkeys.rasi"
+	local sheet="$HOME/.config/i3/keys/cheatsheet.txt"
 
-  [[ -f "$sheet" ]] || die "Key cheatsheet not found: $sheet"
+	[[ -f $sheet ]] || die "Key cheatsheet not found: $sheet"
 
-  rofi \
-    -dmenu \
-    -i \
-    -p "Keybindings" \
-    -theme "$theme" \
-    <"$sheet"
+	rofi \
+		-dmenu \
+		-i \
+		-p "Keybindings" \
+		-theme "$theme" \
+		<"$sheet"
 }

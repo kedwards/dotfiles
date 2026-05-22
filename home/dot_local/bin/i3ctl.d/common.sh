@@ -2,18 +2,18 @@
 set -Eeuo pipefail
 
 log() { echo "[i3ctl] $*" >&2; }
-dbg() { [[ "${VERBOSE:-false}" == "true" ]] && echo "[debug] $*" >&2 || true; }
+dbg() { [[ ${VERBOSE:-false} == "true" ]] && echo "[debug] $*" >&2 || true; }
 die() {
-  log "ERROR: $*"
-  exit 1
+	log "ERROR: $*"
+	exit 1
 }
 
 require() {
-  command -v "$1" >/dev/null 2>&1 || die "Missing dependency: $1"
+	command -v "$1" >/dev/null 2>&1 || die "Missing dependency: $1"
 }
 
 i3ctl_help() {
-  cat <<EOF
+	cat <<EOF
 Usage: i3ctl <command>
 
 Commands:

@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_NAME="$(basename "$0")"
 
 usage() {
-  cat <<EOF
+	cat <<EOF
 Usage:
   $SCRIPT_NAME <target> <env> [config] [region] [tags] [dr_deploy] [service]
 
@@ -26,13 +26,13 @@ EOF
 
 log() { echo "[INFO] $*" >&2; }
 err() {
-  echo "[ERROR] $*" >&2
-  exit 1
+	echo "[ERROR] $*" >&2
+	exit 1
 }
 
 [[ $# -lt 2 ]] && {
-  usage
-  exit 1
+	usage
+	exit 1
 }
 
 TARGET="$1"
@@ -55,23 +55,23 @@ log "Assuming target profile: $PROFILE"
 assume "$PROFILE"
 
 cleanup() {
-  log "Cleaning up AWS session"
-  assume -un || true
+	log "Cleaning up AWS session"
+	assume -un || true
 }
 trap cleanup EXIT
 
 (
-  unset AWS_PROFILE
+	unset AWS_PROFILE
 
-  export ANSIBLE_PYTHON_INTERPRETER
-  ANSIBLE_PYTHON_INTERPRETER="$(which python)"
+	export ANSIBLE_PYTHON_INTERPRETER
+	ANSIBLE_PYTHON_INTERPRETER="$(which python)"
 
-  log "Running Ansible target '$TARGET'"
-  make -C infra/ansible "$TARGET" \
-    ENV="$PROFILE" \
-    REGION="$REGION" \
-    CONFIG="$CONFIG" \
-    SERVICE="$SERVICE" \
-    EXTRA_VARS="ps_aws_access_key_id=$AK ps_aws_secret_access_key=$SK ps_aws_session_token=$ST dr_deploy=$DR_DEPLOY" \
-    RUNTAG="$TAGS"
+	log "Running Ansible target '$TARGET'"
+	make -C infra/ansible "$TARGET" \
+		ENV="$PROFILE" \
+		REGION="$REGION" \
+		CONFIG="$CONFIG" \
+		SERVICE="$SERVICE" \
+		EXTRA_VARS="ps_aws_access_key_id=$AK ps_aws_secret_access_key=$SK ps_aws_session_token=$ST dr_deploy=$DR_DEPLOY" \
+		RUNTAG="$TAGS"
 )

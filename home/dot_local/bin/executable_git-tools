@@ -1,96 +1,96 @@
 #!/usr/bin/env bash
 
-if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
-  # Only set strict mode when executed, not when sourced
-  set -euo pipefail
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
+	# Only set strict mode when executed, not when sourced
+	set -euo pipefail
 fi
 
 clone_repository() {
-  local owner="${1,,}"
-  local repo="${2,,}"
-  local dest="${3:-$GIT_DEV_DIR/$repo}"
-  local type="${4:-bare}"
+	local owner="${1,,}"
+	local repo="${2,,}"
+	local dest="${3:-$GIT_DEV_DIR/$repo}"
+	local type="${4:-bare}"
 
-  mkdir -p "$(dirname "$dest")"
+	mkdir -p "$(dirname "$dest")"
 
-  if [[ -d "$dest" ]]; then
-    git -C "$dest" fetch || true
-    return 0
-  fi
+	if [[ -d $dest ]]; then
+		git -C "$dest" fetch || true
+		return 0
+	fi
 
-  if [[ "$type" == "clone" ]]; then
-    git clone "https://github.com/$owner/$repo.git" "$dest"
-  else
-    git clone --bare "https://github.com/$owner/$repo.git" "$dest"
-    git -C "$dest" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    git -C "$dest" fetch || true
-  fi
+	if [[ $type == "clone" ]]; then
+		git clone "https://github.com/$owner/$repo.git" "$dest"
+	else
+		git clone --bare "https://github.com/$owner/$repo.git" "$dest"
+		git -C "$dest" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+		git -C "$dest" fetch || true
+	fi
 }
 
 worktree() {
-  case "${1:-}" in
-    -l) git worktree list ;;
-    -u)
-      git fetch --all
-      git -C "$(git worktree list | awk "/$2/ {print \$1}")" pull
-      ;;
-    *)
-      cd "$(git worktree list | awk "/$1/ {print \$1}")"
-      ;;
-  esac
+	case "${1:-}" in
+	-l) git worktree list ;;
+	-u)
+		git fetch --all
+		git -C "$(git worktree list | awk "/$2/ {print \$1}")" pull
+		;;
+	*)
+		cd "$(git worktree list | awk "/$1/ {print \$1}")"
+		;;
+	esac
 }
 
 install_completion() {
-  local shell="$SHELL_TYPE"
-  local dir file
+	local shell="$SHELL_TYPE"
+	local dir file
 
-  case "$shell" in
-    bash)
-      dir="$HOME/.local/share/bash-completion/completions"
-      file="$dir/git-completion.bash"
-      ;;
-    zsh)
-      dir="$HOME/.zsh/completions"
-      file="$dir/_git"
-      ;;
-  esac
+	case "$shell" in
+	bash)
+		dir="$HOME/.local/share/bash-completion/completions"
+		file="$dir/git-completion.bash"
+		;;
+	zsh)
+		dir="$HOME/.zsh/completions"
+		file="$dir/_git"
+		;;
+	esac
 
-  mkdir -p "$dir"
+	mkdir -p "$dir"
 
-  version="$(git --version | awk '{print $3}')"
-  url="https://raw.githubusercontent.com/git/git/v${version}/contrib/completion/git-completion.$shell"
+	version="$(git --version | awk '{print $3}')"
+	url="https://raw.githubusercontent.com/git/git/v${version}/contrib/completion/git-completion.$shell"
 
-  curl -fsSL "$url" -o "$file"
+	curl -fsSL "$url" -o "$file"
 }
 
-if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
-  # sourced
-  alias clone='clone_repository'
-  alias wt='worktree'
+if [[ ${BASH_SOURCE[0]} != "$0" ]]; then
+	# sourced
+	alias clone='clone_repository'
+	alias wt='worktree'
 
-  # Set up git-worktree-wrapper if available
-  if command -v git-worktree-wrapper.sh >/dev/null 2>&1; then
-    export DISABLE_GIT_WORKTREE_EDITOR=1
-    # Use alias with absolute path for reliability
-    GWT_WRAPPER_PATH="$(command -v git-worktree-wrapper.sh)"
-    alias git="source '$GWT_WRAPPER_PATH'"
-    # git() {
-    #   source "$GWT_WRAPPER_PATH" "$@"
-    # }
-  else
-    # If wrapper not available, just use regular git
-    :
-  fi
+	# Set up git-worktree-wrapper if available
+	if command -v git-worktree-wrapper.sh >/dev/null 2>&1; then
+		export DISABLE_GIT_WORKTREE_EDITOR=1
+		# Use alias with absolute path for reliability
+		GWT_WRAPPER_PATH="$(command -v git-worktree-wrapper.sh)"
+		alias git="source '$GWT_WRAPPER_PATH'"
+		# git() {
+		#   source "$GWT_WRAPPER_PATH" "$@"
+		# }
+	else
+		# If wrapper not available, just use regular git
+		:
+	fi
 else
-  case "$1" in
-    clone)
-      shift
-      clone_repository "$@"
-      ;;
-    worktree | wt)
-      shift
-      worktree "$@"
-      ;;
-    *) echo "git-tools clone|worktree" ;;
-  esac
+	case "$1" in
+	clone)
+		shift
+		clone_repository "$@"
+		;;
+	worktree | wt)
+		shift
+		worktree "$@"
+		;;
+	*) echo "git-tools clone|worktree" ;;
+	esac
 fi

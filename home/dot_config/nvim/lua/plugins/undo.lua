@@ -1,16 +1,16 @@
 return {
-  {
-	  "mbbill/undotree",
-	  lazy = false,
-	  keys = {
-		  { "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree" },
-	  },
-	  init = function()
-		  vim.g.undotree_WindowLayout = 2
-	  end,
-	  config = function() end
-  },
-  {
+	{
+		"mbbill/undotree",
+		lazy = false,
+		keys = {
+			{ "<leader>u", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree" },
+		},
+		init = function()
+			vim.g.undotree_WindowLayout = 2
+		end,
+		config = function() end,
+	},
+	{
 		"y3owk1n/time-machine.nvim",
 		cmd = {
 			"TimeMachineToggle",
@@ -47,5 +47,5 @@ return {
 				desc = "Show log",
 			},
 		},
-	}
+	},
 }

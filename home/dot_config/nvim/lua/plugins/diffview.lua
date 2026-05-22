@@ -1,5 +1,5 @@
 return {
-  "sindrets/diffview.nvim",
-  cmd = "DiffviewOpen",
-  opts = {},
+	"sindrets/diffview.nvim",
+	cmd = "DiffviewOpen",
+	opts = {},
 }

@@ -1,7 +1,8 @@
+#!/bin/sh
 # shell mode only
 case "$SHELL" in
-  */bash) set -o vi ;;
-  */zsh) bindkey -v ;;
+*/bash) set -o vi ;;
+*/zsh) bindkey -v ;;
 esac
 
 bind 'set show-mode-in-prompt on'
