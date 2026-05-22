@@ -19,10 +19,10 @@ display_cmd() {
 		# Auto-detect home vs work setup
 		if has_output HDMI-1 && has_output DP-1-1; then
 			log "Work setup detected (HDMI-1 + DP-1-1)"
-			~/.screenlayout/work.sh
+			"$HOME/.screenlayout/work.sh"
 		elif has_output DP-3-2 && has_output DP-3-3; then
 			log "Home setup detected (DP-3-2 + DP-3-3)"
-			~/.screenlayout/home.sh
+			"$HOME/.screenlayout/home.sh"
 		elif has_output eDP-1; then
 			log "Laptop-only setup detected"
 			display_cmd laptop
@@ -32,14 +32,14 @@ display_cmd() {
 		;;
 	home)
 		# Home dual monitors + laptop panel
-		[[ -x ~/.screenlayout/home.sh ]] || die "~/.screenlayout/home.sh not found or not executable"
-		~/.screenlayout/home.sh
+		[[ -x "$HOME/.screenlayout/home.sh" ]] || die "$HOME/.screenlayout/home.sh not found or not executable"
+		"$HOME/.screenlayout/home.sh"
 		log "Applied home display layout"
 		;;
 	work)
 		# Work dual monitors + laptop panel
-		[[ -x ~/.screenlayout/work.sh ]] || die "~/.screenlayout/work.sh not found or not executable"
-		~/.screenlayout/work.sh
+		[[ -x "$HOME/.screenlayout/work.sh" ]] || die "$HOME/.screenlayout/work.sh not found or not executable"
+		"$HOME/.screenlayout/work.sh"
 		log "Applied work display layout"
 		;;
 	desk)

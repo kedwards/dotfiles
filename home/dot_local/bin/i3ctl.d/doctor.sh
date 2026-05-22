@@ -28,9 +28,21 @@ doctor_cmd() {
 
 	# --------------------------------------------------
 	section "Core i3 environment"
-	have i3 && ok "i3 installed" || err "i3 missing"
-	have i3-msg && ok "i3-msg available" || err "i3-msg missing"
-	have xsetroot && ok "X utilities present" || warn "xsetroot missing"
+	if have i3; then
+		ok "i3 installed"
+	else
+		err "i3 missing"
+	fi
+	if have i3-msg; then
+		ok "i3-msg available"
+	else
+		err "i3-msg missing"
+	fi
+	if have xsetroot; then
+		ok "X utilities present"
+	else
+		warn "xsetroot missing"
+	fi
 
 	if [[ $session == "wayland" ]]; then
 		warn "Wayland session detected — i3 config will not be used"
@@ -38,9 +50,21 @@ doctor_cmd() {
 
 	# --------------------------------------------------
 	section "Locking (xss-lock / i3ctl lock)"
-	have xss-lock && ok "xss-lock installed" || warn "xss-lock missing (no suspend lock)"
-	have i3lock && ok "i3lock installed" || err "i3lock missing"
-	have magick && ok "ImageMagick present" || err "imagemagick (magick) missing"
+	if have xss-lock; then
+		ok "xss-lock installed"
+	else
+		warn "xss-lock missing (no suspend lock)"
+	fi
+	if have i3lock; then
+		ok "i3lock installed"
+	else
+		err "i3lock missing"
+	fi
+	if have magick; then
+		ok "ImageMagick present"
+	else
+		err "imagemagick (magick) missing"
+	fi
 
 	if have scrot; then
 		ok "scrot available for screenshots"
@@ -63,7 +87,11 @@ doctor_cmd() {
 		err "pactl missing (install pipewire-pulse or pulseaudio)"
 	fi
 
-	have i3status && ok "i3status installed" || warn "i3status missing (volume refresh)"
+	if have i3status; then
+		ok "i3status installed"
+	else
+		warn "i3status missing (volume refresh)"
+	fi
 
 	# --------------------------------------------------
 	section "Brightness control"
@@ -84,9 +112,21 @@ doctor_cmd() {
 
 	# --------------------------------------------------
 	section "Launchers & apps"
-	have rofi && ok "rofi installed" || warn "rofi missing"
-	have firefox && ok "firefox installed" || warn "firefox missing"
-	have thunar && ok "thunar installed" || warn "thunar missing"
+	if have rofi; then
+		ok "rofi installed"
+	else
+		warn "rofi missing"
+	fi
+	if have firefox; then
+		ok "firefox installed"
+	else
+		warn "firefox missing"
+	fi
+	if have thunar; then
+		ok "thunar installed"
+	else
+		warn "thunar missing"
+	fi
 
 	if have i3-sensible-terminal; then
 		ok "i3-sensible-terminal available"
@@ -96,31 +136,71 @@ doctor_cmd() {
 
 	# --------------------------------------------------
 	section "Status bar"
-	have i3blocks && ok "i3blocks installed" || warn "i3blocks missing"
-	have i3status && ok "i3status installed" || warn "i3status missing"
+	if have i3blocks; then
+		ok "i3blocks installed"
+	else
+		warn "i3blocks missing"
+	fi
+	if have i3status; then
+		ok "i3status installed"
+	else
+		warn "i3status missing"
+	fi
 
 	# --------------------------------------------------
 	section "Cleanup tooling"
-	have lsof && ok "lsof installed" || warn "lsof missing"
-	have pgrep && ok "procps available" || warn "procps missing"
-	have find && ok "findutils available" || warn "findutils missing"
+	if have lsof; then
+		ok "lsof installed"
+	else
+		warn "lsof missing"
+	fi
+	if have pgrep; then
+		ok "procps available"
+	else
+		warn "procps missing"
+	fi
+	if have find; then
+		ok "findutils available"
+	else
+		warn "findutils missing"
+	fi
 
 	# --------------------------------------------------
 	section "Audio"
-	have pactl && ok "pactl available" || err "pactl missing (pipewire-pulse or pulseaudio)"
-	have playerctl && ok "playerctl available" || warn "playerctl missing (media keys)"
+	if have pactl; then
+		ok "pactl available"
+	else
+		err "pactl missing (pipewire-pulse or pulseaudio)"
+	fi
+	if have playerctl; then
+		ok "playerctl available"
+	else
+		warn "playerctl missing (media keys)"
+	fi
 
 	# --------------------------------------------------
 	section "Display"
-	have xrandr && ok "xrandr available" || err "xrandr missing (display control)"
+	if have xrandr; then
+		ok "xrandr available"
+	else
+		err "xrandr missing (display control)"
+	fi
 
 	# --------------------------------------------------
 	section "Key overlay"
-	have rofi && ok "rofi available for key overlay" || err "rofi missing (keys)"
+	if have rofi; then
+		ok "rofi available for key overlay"
+	else
+		err "rofi missing (keys)"
+	fi
 
 	# --------------------------------------------------
 	section "Power profiles"
-	have powerprofilesctl && ok "powerprofilesctl available" || warn "powerprofilesctl missing (power profiles disabled)"
+	if have powerprofilesctl; then
+		ok "powerprofilesctl available"
+	else
+		warn "powerprofilesctl missing (power profiles disabled)"
+	fi
 
 	# --------------------------------------------------
 	echo

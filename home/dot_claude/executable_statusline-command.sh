@@ -19,15 +19,31 @@ total_out=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
 # Cost estimation (USD) based on model pricing (per-million-token rates)
 # Pricing tiers: input / output per 1M tokens
 case "$model_id" in
-*claude-opus-4* | *claude-opus-4-5*)
+*claude-opus-4-5*)
 	price_in="15.0"
 	price_out="75.0"
 	;;
-*claude-sonnet-4* | *claude-sonnet-4-5* | *claude-sonnet-4-6*)
+*claude-opus-4*)
+	price_in="15.0"
+	price_out="75.0"
+	;;
+*claude-sonnet-4-6*)
 	price_in="3.0"
 	price_out="15.0"
 	;;
-*claude-haiku-3-5* | *claude-haiku-3-6*)
+*claude-sonnet-4-5*)
+	price_in="3.0"
+	price_out="15.0"
+	;;
+*claude-sonnet-4*)
+	price_in="3.0"
+	price_out="15.0"
+	;;
+*claude-haiku-3-6*)
+	price_in="0.8"
+	price_out="4.0"
+	;;
+*claude-haiku-3-5*)
 	price_in="0.8"
 	price_out="4.0"
 	;;
@@ -35,7 +51,11 @@ case "$model_id" in
 	price_in="0.25"
 	price_out="1.25"
 	;;
-*claude-3-5-sonnet* | *claude-3-7-sonnet*)
+*claude-3-7-sonnet*)
+	price_in="3.0"
+	price_out="15.0"
+	;;
+*claude-3-5-sonnet*)
 	price_in="3.0"
 	price_out="15.0"
 	;;

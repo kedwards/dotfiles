@@ -5,20 +5,23 @@ cleanup_cmd() {
 	require i3-msg
 
 	local exec=false
-	local reload=false
 
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
 		--exec) exec=true ;;
-		--reload) reload=true ;;
 		esac
 		shift
 	done
 
+	# shellcheck disable=SC2329
 	run() {
-		$exec && eval "$@" || echo "[dry-run] $*"
+		if $exec; then
+			"$@"
+		else
+			echo "[dry-run] $*"
+		fi
 	}
 
 	# sockets, processes, logs...
-	# (existing logic unchanged)
+	# TODO: implement cleanup logic that calls run()
 }

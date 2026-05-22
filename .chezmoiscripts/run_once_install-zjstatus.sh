@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PLUGIN_NAME="zjstatus"
 GITHUB_REPO="dj95/zjstatus"
 INSTALL_DIR="$HOME/.config/zellij/plugins"
 INSTALL_PATH="$INSTALL_DIR/zjstatus.wasm"

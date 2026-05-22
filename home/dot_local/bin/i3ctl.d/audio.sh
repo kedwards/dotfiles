@@ -6,17 +6,9 @@ audio_cmd() {
 
 	local step=1
 
-	get_default_sink() {
-		pactl get-default-sink
-	}
-
-	get_default_source() {
-		pactl get-default-source
-	}
-
 	switch_sink() {
 		local sinks current next
-		current="$(get_default_sink)"
+		current="$(pactl get-default-sink)"
 		mapfile -t sinks < <(pactl list short sinks | awk '{print $2}')
 
 		[[ ${#sinks[@]} -gt 1 ]] || return 0
@@ -43,7 +35,7 @@ audio_cmd() {
 		pactl set-sink-mute @DEFAULT_SINK@ toggle
 		;;
 	mic-mute)
-		pactl set-source-mute @DEFAULT_SOURCE@ toggle
+		pactl set-source-mute "$(pactl get-default-source)" toggle
 		;;
 	switch)
 		switch_sink

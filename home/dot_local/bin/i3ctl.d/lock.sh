@@ -15,7 +15,7 @@ lock_cmd() {
 
 	local img
 	img="$(mktemp "${XDG_RUNTIME_DIR:-/tmp}/i3lock.XXXXXX.png")"
-	trap "rm -f '$img'" EXIT INT TERM
+	trap 'rm -f "$img"' EXIT INT TERM
 
 	screenshot "$img"
 	magick "$img" -blur 5x4 "$img"

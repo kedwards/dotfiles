@@ -13,6 +13,7 @@ case "$(uname -s)" in
       exit 1
     }
 
+    # shellcheck disable=SC1091
     . /etc/os-release
 
     cleanup() {

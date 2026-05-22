@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(apt-get update *)",
+      "Bash(apt-get install *)",
+      "Bash(shellcheck --version)",
+      "Bash(/tmp/shfmt -d .)",
+      "Bash(chezmoi init *)",
+      "Bash(luarocks install *)",
+      "Bash(luacheck .)",
+      "Bash(/tmp/shfmt -w -s .)",
+      "Bash(lua -v)",
+      "Bash(mise ls *)",
+      "Bash(stylua --check .)",
+      "Bash(stylua .)",
+      "Bash(git add *)",
+      "Bash(git restore *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(shellcheck ./home/dot_claude/executable_statusline-command.sh ./home/dot_local/bin/i3ctl.d/*.sh ./home/dot_local/lib/mise.sh ./.chezmoiscripts/run_once_install-zjstatus.sh ./.chezmoiscripts/.install-password-manager.sh --format=gcc)",
+      "Bash(shellcheck ./home/dot_local/bin/i3ctl.d/doctor.sh --format=gcc)",
+      "Bash(shellcheck ./home/dot_local/bin/i3ctl.d/cleanup.sh ./home/dot_local/bin/i3ctl.d/doctor.sh --format=gcc)"
+    ]
+  }
+}
