@@ -6,6 +6,10 @@
     "padding": 0,
     "refreshInterval": 10
   },
+  "enabledPlugins": {
+    "warp@claude-code-warp": true,
+    "gopls-lsp@claude-plugins-official": true
+  },
   "extraKnownMarketplaces": {
     "claude-code-warp": {
       "source": {
@@ -15,8 +19,5 @@
     }
   },
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark",
-  "enabledPlugins": {
-    "warp@claude-code-warp": true
-  }
+  "theme": "dark"
 }
