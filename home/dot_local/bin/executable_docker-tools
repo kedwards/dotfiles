@@ -24,7 +24,6 @@ get_registry() {
 	case "${1:-dockerhub}" in
 	dockerhub | "") echo "" ;;
 	rch)
-		assume ps
 		echo "003756058538.dkr.ecr.us-east-1.amazonaws.com/"
 		;;
 	*) echo "${1%/}/" ;;
