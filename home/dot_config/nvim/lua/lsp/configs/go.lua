@@ -52,7 +52,7 @@ return {
 
 	-- Linters
 	lint = {
-		go = { "golangci-lint" },
+		go = { "golangcilint" },
 	},
 
 	-- DAP
