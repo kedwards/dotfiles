@@ -379,11 +379,47 @@ function M.setup_linting()
 	-- Apply custom linter configurations
 	M.apply_custom_linter_configs(lint)
 
+	local function get_available_linters_for_current_buffer()
+		local filetype = vim.bo.filetype
+		local names = lint._resolve_linter_by_ft(filetype)
+		if not names or vim.tbl_isempty(names) then
+			return {}
+		end
+
+		return vim.tbl_filter(function(name)
+			local linter = lint.linters[name]
+			if not linter then
+				return false
+			end
+
+			if type(linter) == "function" then
+				linter = linter()
+			end
+
+			if type(linter) ~= "table" then
+				return false
+			end
+
+			local cmd = linter.cmd
+			if type(cmd) == "function" then
+				local ok, resolved = pcall(cmd)
+				cmd = ok and resolved or nil
+			end
+
+			return type(cmd) == "string" and vim.fn.executable(cmd) == 1
+		end, names)
+	end
+
 	-- Setup linting autocmd
 	vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
 		group = vim.api.nvim_create_augroup("nvim-lint", { clear = true }),
 		callback = function()
-			lint.try_lint()
+			local available_linters = get_available_linters_for_current_buffer()
+			if #available_linters == 0 then
+				return
+			end
+
+			lint.try_lint(available_linters)
 		end,
 	})
 
@@ -393,6 +429,7 @@ end
 local mason_name_map = {
 	-- Special cases where tool name != mason name
 	ruff_format = "ruff", -- ruff handles both linting and formatting
+	golangcilint = "golangci-lint",
 }
 
 --- Get Mason package name for a tool
