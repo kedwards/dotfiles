@@ -89,7 +89,7 @@ return function()
 	-- Use Treesitter folds if available
 	if pcall(require, "nvim-treesitter") then
 		opt.foldmethod = "expr"
-		opt.foldexpr = "nvim_treesitter#foldexpr()"
+		opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 	else
 		opt.foldmethod = "manual"
 	end
