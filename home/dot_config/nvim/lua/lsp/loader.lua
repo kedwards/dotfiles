@@ -3,6 +3,7 @@ local M = {}
 -- Cache for better performance
 local _cached_configs = nil
 local _cached_tools = nil
+local _cached_mason_map = nil
 local _modules = {}
 
 -- Configuration directory
@@ -326,7 +327,7 @@ function M.setup_formatting()
 		formatters_by_ft = formatters_by_ft,
 		format_on_save = function(bufnr)
 			-- Check if formatting is enabled for this buffer
-			local disable_filetypes = { "sql" } -- Add filetypes to disable
+			local disable_filetypes = {} -- Add filetypes to disable
 			local filetype = vim.bo[bufnr].filetype
 
 			if vim.tbl_contains(disable_filetypes, filetype) then
@@ -426,17 +427,34 @@ function M.setup_linting()
 	return true
 end
 
-local mason_name_map = {
-	-- Special cases where tool name != mason name
-	ruff_format = "ruff", -- ruff handles both linting and formatting
-	golangcilint = "golangci-lint",
-}
+--- Build the tool -> Mason package name map by aggregating the optional
+--- `mason` table declared in each config file. This lets configs own their
+--- own overrides (e.g. `mason = { pg_format = "pgformatter" }`) instead of the
+--- loader maintaining a central list.
+--- @return table<string, string> Map of tool name to Mason package name
+function M.get_mason_name_map()
+	if _cached_mason_map then
+		return _cached_mason_map
+	end
+
+	local map = {}
+	for _, config in pairs(M.read_configs()) do
+		if type(config.mason) == "table" then
+			for tool_name, mason_name in pairs(config.mason) do
+				map[tool_name] = mason_name
+			end
+		end
+	end
+
+	_cached_mason_map = map
+	return map
+end
 
 --- Get Mason package name for a tool
 --- @param tool_name string The tool name from config
 --- @return string The Mason package name
 local function get_mason_name(tool_name)
-	return mason_name_map[tool_name] or tool_name
+	return M.get_mason_name_map()[tool_name] or tool_name
 end
 
 --- Install tools using Mason with proper registry initialization
@@ -531,6 +549,7 @@ end
 function M.clear_cache()
 	_cached_configs = nil
 	_cached_tools = nil
+	_cached_mason_map = nil
 	_modules = {}
 end
 

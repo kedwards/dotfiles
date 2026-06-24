@@ -1,5 +1,5 @@
 {
-  "model": "haiku",
+  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline-command.sh",
@@ -8,13 +8,28 @@
   },
   "enabledPlugins": {
     "warp@claude-code-warp": true,
-    "gopls-lsp@claude-plugins-official": true
+    "gopls-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "ponytail@ponytail": true,
+    "basic-memory@basicmachines-co": true
   },
   "extraKnownMarketplaces": {
     "claude-code-warp": {
       "source": {
         "source": "github",
         "repo": "warpdotdev/claude-code-warp"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    },
+    "basicmachines-co": {
+      "source": {
+        "source": "github",
+        "repo": "basicmachines-co/basic-memory"
       }
     }
   },

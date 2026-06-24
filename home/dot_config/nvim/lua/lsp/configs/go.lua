@@ -55,6 +55,11 @@ return {
 		go = { "golangcilint" },
 	},
 
+	-- Mason package overrides (tool name -> mason package name)
+	mason = {
+		golangcilint = "golangci-lint",
+	},
+
 	-- DAP
 	dap = {
 		go = {
