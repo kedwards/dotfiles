@@ -1,5 +1,4 @@
 {
-  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "~/.claude/statusline-command.sh",
@@ -33,6 +32,9 @@
       }
     }
   },
+  "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark"
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark",
+  "model": "opus[1m]"
 }
