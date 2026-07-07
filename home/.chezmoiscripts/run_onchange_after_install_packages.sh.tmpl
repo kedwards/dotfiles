@@ -1,0 +1,14 @@
+#!/bin/bash
+# packages hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+set -eu
+
+MISE="$HOME/.local/bin/mise"
+
+# Install mise if the binary is missing (nothing else in the repo installs it)
+if [ ! -x "$MISE" ]; then
+	echo "mise not found; installing..."
+	curl https://mise.run | sh
+fi
+
+"$MISE" trust "$HOME/.config/mise/config.toml"
+"$MISE" install
