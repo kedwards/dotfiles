@@ -27,4 +27,4 @@ encryption = "gpg"
 
 [hooks.read-source-state.pre]
     command = "/bin/sh"
-    args = ["-c", "exec /bin/sh \"${CHEZMOI_WORKING_TREE:?}/.chezmoihooks/run_install_password_manager.sh\""]
+    args = ["-c", "exec /bin/sh '{{ .chezmoi.workingTree }}/.chezmoihooks/run_install_password_manager.sh'"]
