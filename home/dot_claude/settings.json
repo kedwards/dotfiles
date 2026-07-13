@@ -1,40 +1,74 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline-command.sh",
-    "padding": 0,
-    "refreshInterval": 10
-  },
   "enabledPlugins": {
-    "warp@claude-code-warp": true,
+    "basic-memory@basicmachines-co": true,
     "gopls-lsp@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
     "ponytail@ponytail": true,
-    "basic-memory@basicmachines-co": true
+    "typescript-lsp@claude-plugins-official": true,
+    "warp@claude-code-warp": true
   },
   "extraKnownMarketplaces": {
+    "basicmachines-co": {
+      "source": {
+        "repo": "basicmachines-co/basic-memory",
+        "source": "github"
+      }
+    },
     "claude-code-warp": {
       "source": {
-        "source": "github",
-        "repo": "warpdotdev/claude-code-warp"
+        "repo": "warpdotdev/claude-code-warp",
+        "source": "github"
       }
     },
     "ponytail": {
       "source": {
-        "source": "github",
-        "repo": "DietrichGebert/ponytail"
-      }
-    },
-    "basicmachines-co": {
-      "source": {
-        "source": "github",
-        "repo": "basicmachines-co/basic-memory"
+        "repo": "DietrichGebert/ponytail",
+        "source": "github"
       }
     }
   },
-  "tui": "fullscreen",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "atuin hook claude-code",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "command": "atuin hook claude-code",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "atuin hook claude-code",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      }
+    ]
+  },
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
+  "statusLine": {
+    "command": "~/.claude/statusline-command.sh",
+    "padding": 0,
+    "refreshInterval": 10,
+    "type": "command"
+  },
   "theme": "dark",
-  "model": "opus[1m]"
+  "tui": "fullscreen"
 }

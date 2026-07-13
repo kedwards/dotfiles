@@ -11,7 +11,7 @@ eksctl = "latest"
 eza = "latest"
 fd = "latest"
 fzf = "latest"
-gemini-cli = "latest"
+gemini = { version = "latest", allow_builds = ["@github/keytar", "node-pty"] }
 git-worktree-wrapper = "latest"
 github-cli = "latest"
 go = "latest"
@@ -44,3 +44,5 @@ usage = "latest"
 uv = "latest"
 yarn = "latest"
 zellij = "latest"
+
+[env]
