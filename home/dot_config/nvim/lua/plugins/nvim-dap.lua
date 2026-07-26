@@ -19,7 +19,7 @@ return {
 			dependencies = "mason-org/mason.nvim",
 			cmd = { "DapInstall", "DapUninstall" },
 			opts = {
-				ensure_installed = {},
+				ensure_installed = { "delve" },
 				automatic_installation = true,
 				handlers = {
 					function(config)

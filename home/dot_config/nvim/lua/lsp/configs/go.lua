@@ -61,12 +61,70 @@ return {
 	},
 
 	-- DAP
-	dap = {
-		go = {
-			type = "go",
-			name = "Debug",
-			request = "launch",
-			program = "${file}",
+	debug = {
+		adapters = {
+			delve = {
+				type = "server",
+				port = "${port}",
+				executable = {
+					command = "dlv",
+					args = { "dap", "-l", "127.0.0.1:${port}" },
+				},
+			},
+		},
+		configurations = {
+			go = {
+				{
+					type = "delve",
+					name = "Debug file",
+					request = "launch",
+					program = "${file}",
+				},
+				{
+					type = "delve",
+					name = "Debug file (with args)",
+					request = "launch",
+					program = "${file}",
+					args = function()
+						local args = vim.fn.input("Arguments: ")
+						return vim.split(args, " ", { trimempty = true })
+					end,
+				},
+				{
+					type = "delve",
+					name = "Debug package",
+					request = "launch",
+					program = "${workspaceFolder}",
+				},
+				{
+					type = "delve",
+					name = "Debug package (with args)",
+					request = "launch",
+					program = "${workspaceFolder}",
+					args = function()
+						local args = vim.fn.input("Arguments: ")
+						return vim.split(args, " ", { trimempty = true })
+					end,
+				},
+				{
+					type = "delve",
+					name = "Debug test (file)",
+					request = "launch",
+					mode = "test",
+					program = "${workspaceFolder}",
+				},
+				{
+					type = "delve",
+					name = "Debug test (single)",
+					request = "launch",
+					mode = "test",
+					program = "${workspaceFolder}",
+					args = function()
+						local name = vim.fn.input("Test name (e.g. TestFoo): ")
+						return vim.trim(name) ~= "" and { "-run", name } or {}
+					end,
+				},
+			},
 		},
 	},
 }
