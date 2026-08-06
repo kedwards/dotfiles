@@ -6,6 +6,7 @@ SCRIPT_NAME="$(basename "$0")"
 usage() {
 	cat <<EOF
 Usage:
+  $SCRIPT_NAME local-db-up
   $SCRIPT_NAME <target> <env> [config] [region] [tags] [dr_deploy] [service]
 
 Arguments:
@@ -18,6 +19,7 @@ Arguments:
   service     Service name (default: setup)
 
 Examples:
+  $SCRIPT_NAME local-db-up
   $SCRIPT_NAME plan ps
   $SCRIPT_NAME apply prod release us-east-1 db
   $SCRIPT_NAME apply prod release us-east-1 db "" publish
@@ -30,33 +32,106 @@ err() {
 	exit 1
 }
 
+REACH_REPO_DIR="${REACH_REPO_DIR:-$HOME/projects/db-bad}"
+REACH_COMPOSE_FILE="${REACH_COMPOSE_FILE:-$REACH_REPO_DIR/compose.yml}"
+
+local_db_up() {
+	command -v docker >/dev/null || err "'docker' not found"
+	docker compose version >/dev/null 2>&1 || err "'docker compose' not found"
+	[[ -f "$REACH_COMPOSE_FILE" ]] || err "compose file not found: $REACH_COMPOSE_FILE"
+
+	log "Starting local Postgres and CloudBeaver from $REACH_COMPOSE_FILE"
+	docker compose -f "$REACH_COMPOSE_FILE" up -d engine dbeaver
+}
+
+case "${1:-}" in
+local-db-up)
+	local_db_up
+	exit 0
+	;;
+-h|--help|help)
+	usage
+	exit 0
+	;;
+esac
+
 [[ $# -lt 2 ]] && {
 	usage
 	exit 1
 }
 
 TARGET="$1"
-PROFILE="$2"
+ENV_NAME="$2"
 CONFIG="${3:-main}"
 REGION="${4:-us-east-1}"
 TAGS="${5:-}"
 DR_DEPLOY="${6:-}"
 SERVICE="${7:-setup}"
 
-command -v assume >/dev/null || err "'assume' not found"
 command -v make >/dev/null || err "'make' not found"
+command -v awst >/dev/null || err "'awst' not found"
+
+if ! command -v aws >/dev/null 2>&1 && command -v mise >/dev/null 2>&1; then
+	AWS_BIN="$(mise which aws 2>/dev/null || true)"
+	if [[ -n "$AWS_BIN" ]]; then
+		export PATH="$(dirname "$AWS_BIN"):$PATH"
+	fi
+fi
+command -v aws >/dev/null || err "'aws' not found"
 
 BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AWST_BIN="$(command -v awst)"
+AWS_CONFIG_PATH="${AWS_CONFIG_FILE:-$HOME/.aws/config}"
+
+resolve_aws_profile() {
+	local env_name="$1"
+	local matches=()
+	local profile_name
+
+	if [[ -f "$AWS_CONFIG_PATH" ]] && grep -qxF "[profile $env_name]" "$AWS_CONFIG_PATH"; then
+		printf '%s\n' "$env_name"
+		return 0
+	fi
+
+	if [[ -f "$AWS_CONFIG_PATH" ]]; then
+		while IFS= read -r profile_name; do
+			[[ "$profile_name" == *-"$env_name" ]] && matches+=("$profile_name")
+		done < <(grep -E '^\[profile ' "$AWS_CONFIG_PATH" | sed -E 's/^\[profile (.*)\]$/\1/')
+	fi
+
+	case "${#matches[@]}" in
+	1)
+		printf '%s\n' "${matches[0]}"
+		;;
+	0)
+		err "no AWS profile found for env '$env_name'"
+		;;
+	*)
+		err "multiple AWS profiles match env '$env_name': ${matches[*]}"
+		;;
+	esac
+}
+
+AWS_TARGET_PROFILE="$(resolve_aws_profile "$ENV_NAME")"
 
 log "Loading base credentials (ps)"
-eval "$("$BIN_DIR/awst" creds store rch-platform-prod-support)"
+BASE_EXPORTS="$("$AWST_BIN" creds store rch-platform-prod-support --region "$REGION")" || err "failed to load base credentials for rch-platform-prod-support"
+eval "$BASE_EXPORTS"
 
-log "Assuming target profile: $PROFILE"
-assume "$PROFILE"
+: "${AWS_ACCESS_KEY_ID:?failed to load base AWS access key from awst}"
+: "${AWS_SECRET_ACCESS_KEY:?failed to load base AWS secret key from awst}"
+: "${AWS_SESSION_TOKEN:?failed to load base AWS session token from awst}"
+PS_AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID"
+PS_AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY"
+PS_AWS_SESSION_TOKEN="$AWS_SESSION_TOKEN"
+
+log "Logging into target profile: $AWS_TARGET_PROFILE"
+TARGET_EXPORTS="$("$AWST_BIN" login "$AWS_TARGET_PROFILE" --export --region "$REGION")" || err "failed to log into target profile '$AWS_TARGET_PROFILE'"
+eval "$TARGET_EXPORTS"
 
 cleanup() {
 	log "Cleaning up AWS session"
-	assume -un || true
+	eval "$("$AWST_BIN" logout --export)" || true
 }
 trap cleanup EXIT
 
@@ -64,14 +139,15 @@ trap cleanup EXIT
 	unset AWS_PROFILE
 
 	export ANSIBLE_PYTHON_INTERPRETER
-	ANSIBLE_PYTHON_INTERPRETER="$(which python)"
+	ANSIBLE_PYTHON_INTERPRETER="${ANSIBLE_PYTHON_INTERPRETER:-$(command -v python || command -v python3)}"
+	: "${ANSIBLE_PYTHON_INTERPRETER:?python interpreter not found}"
 
 	log "Running Ansible target '$TARGET'"
 	make -C infra/ansible "$TARGET" \
-		ENV="$PROFILE" \
+		ENV="$ENV_NAME" \
 		REGION="$REGION" \
 		CONFIG="$CONFIG" \
 		SERVICE="$SERVICE" \
-		EXTRA_VARS="ps_aws_access_key_id=$AK ps_aws_secret_access_key=$SK ps_aws_session_token=$ST dr_deploy=$DR_DEPLOY" \
+		EXTRA_VARS="ps_aws_access_key_id=$PS_AWS_ACCESS_KEY_ID ps_aws_secret_access_key=$PS_AWS_SECRET_ACCESS_KEY ps_aws_session_token=$PS_AWS_SESSION_TOKEN dr_deploy=$DR_DEPLOY" \
 		RUNTAG="$TAGS"
 )
