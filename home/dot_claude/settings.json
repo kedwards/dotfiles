@@ -48,7 +48,8 @@
     "typescript-lsp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "warp@claude-code-warp": true,
-    "claude-mem@thedotmack": true
+    "claude-mem@thedotmack": true,
+    "aws-core@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "basicmachines-co": {
