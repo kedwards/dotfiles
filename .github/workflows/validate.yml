@@ -18,7 +18,8 @@ jobs:
 
       - name: Install shfmt
         run: |
-          curl -sSL https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep tag_name | cut -d '"' -f4)_linux_amd64 -o /usr/local/bin/shfmt
+          version="$(gh release view --repo mvdan/sh --json tagName --jq .tagName)"
+          curl -fsSL "https://github.com/mvdan/sh/releases/download/${version}/shfmt_${version}_linux_amd64" -o /usr/local/bin/shfmt
           chmod +x /usr/local/bin/shfmt
 
       - name: shfmt
@@ -50,7 +51,7 @@ jobs:
           args: --check .
       - name: Install selene
         run: |
-          version="$(curl -fsSL https://api.github.com/repos/Kampfkarren/selene/releases/latest | grep tag_name | cut -d '"' -f4)"
+          version="$(gh release view --repo Kampfkarren/selene --json tagName --jq .tagName)"
           curl -fsSL "https://github.com/Kampfkarren/selene/releases/download/${version}/selene-${version}-linux.zip" -o /tmp/selene.zip
           unzip -q /tmp/selene.zip -d /tmp/selene
           sudo install -m 755 /tmp/selene/selene /usr/local/bin/selene
