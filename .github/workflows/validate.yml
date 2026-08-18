@@ -21,6 +21,8 @@ jobs:
           version="$(gh release view --repo mvdan/sh --json tagName --jq .tagName)"
           curl -fsSL "https://github.com/mvdan/sh/releases/download/${version}/shfmt_${version}_linux_amd64" -o /usr/local/bin/shfmt
           chmod +x /usr/local/bin/shfmt
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: shfmt
         run: shfmt -d .
@@ -55,6 +57,8 @@ jobs:
           curl -fsSL "https://github.com/Kampfkarren/selene/releases/download/${version}/selene-${version}-linux.zip" -o /tmp/selene.zip
           unzip -q /tmp/selene.zip -d /tmp/selene
           sudo install -m 755 /tmp/selene/selene /usr/local/bin/selene
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: selene
         working-directory: home/dot_config/nvim
