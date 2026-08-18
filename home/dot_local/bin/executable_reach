@@ -49,7 +49,7 @@ local-db-up)
 	local_db_up
 	exit 0
 	;;
--h|--help|help)
+-h | --help | help)
 	usage
 	exit 0
 	;;
