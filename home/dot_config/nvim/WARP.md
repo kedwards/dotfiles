@@ -265,8 +265,5 @@ map("n", "<leader>x", ":command", "Description")
 ### Custom Linter Configuration
 Supports complex linter setups like selene with custom config files via `lint_config` sections.
 
-### Window Navigation Integration
-Includes zellij-nav plugin for seamless terminal multiplexer integration.
-
 ### Performance Monitoring
 Includes lazy.nvim profiling and Neovim's built-in health checks for diagnostics.
