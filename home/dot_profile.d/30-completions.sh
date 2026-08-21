@@ -1,4 +1,4 @@
-[ -f $(which aws_completer) ] && complete -C "$(which aws_completer)" aws
+command -v aws_completer >/dev/null && complete -C "$(command -v aws_completer)" aws
 
 [ -f /etc/bash_completion ] && source /etc/bash_completion
 
