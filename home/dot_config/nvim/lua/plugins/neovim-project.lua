@@ -4,7 +4,6 @@ return {
 		opts = {
 			projects = {
 				"~/projects/*",
-				"~/projects/reach-platform/*",
 				"~/.config/*",
 				"~/.profile.d/*",
 			},
