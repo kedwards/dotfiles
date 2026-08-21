@@ -28,7 +28,7 @@ if not uv.fs_stat(lazypath) then
 	end
 end
 
-if not vim.opt.rtp:get()[lazypath] then
+if not vim.tbl_contains(vim.opt.rtp:get(), lazypath) then
 	vim.opt.rtp:prepend(lazypath)
 end
 

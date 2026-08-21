@@ -114,7 +114,7 @@ function M.list()
 end
 
 --- Setup Mason paths with proper normalization and deduplication
---- Ensures Mason bin directory is in PATH and runtimepath
+--- Ensures Mason bin directory is in PATH
 --- @param opts? {mason_bin: string, prepend: boolean} Options
 --- @return boolean Success status
 function M.setup_mason(opts)
@@ -129,16 +129,11 @@ function M.setup_mason(opts)
 		return false
 	end
 
-	-- Extract root from bin path (parent directory)
-	local norm_root = vim.fn.fnamemodify(norm_bin, ":h")
 
 	-- Ensure directories exist (creates parent automatically with "p")
 	if not ensure_directory(norm_bin) then
 		return false
 	end
-
-	-- Add to runtimepath (for Mason UI and plugins)
-	add_to_option("runtimepath", { norm_root, norm_bin }, prepend)
 
 	-- Add to PATH environment variable
 	local path_env = vim.env.PATH or ""

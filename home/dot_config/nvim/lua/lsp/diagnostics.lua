@@ -1,23 +1,45 @@
 local M = {}
+local function diagnostic_message(message)
+	if string.len(message) > 50 then
+		return string.sub(message, 1, 47) .. "..."
+	end
+	return message
+end
+
+local function virtual_text_config(overrides)
+	local config = {
+		enabled = true,
+		source = "if_many",
+		spacing = 4,
+		prefix = "●",
+		format = function(diagnostic)
+			return diagnostic_message(diagnostic.message)
+		end,
+	}
+
+	if overrides then
+		for key, value in pairs(overrides) do
+			config[key] = value
+		end
+	end
+
+	return config
+end
+
+local function virtual_text_enabled(config)
+	if type(config) == "table" then
+		return config.enabled ~= false
+	end
+
+	return config == true
+end
 
 --- Configure global diagnostic settings
 function M.setup()
 	-- Configure diagnostic display
 	vim.diagnostic.config({
 		-- Enable virtual text with styling
-		virtual_text = {
-			enabled = true,
-			source = "if_many",
-			spacing = 4,
-			prefix = "●",
-			format = function(diagnostic)
-				local message = diagnostic.message
-				if string.len(message) > 50 then
-					message = string.sub(message, 1, 47) .. "..."
-				end
-				return message
-			end,
-		},
+		virtual_text = virtual_text_config(),
 
 		-- Show signs in the gutter
 		signs = {
@@ -134,7 +156,9 @@ function M.setup_keymaps()
 		"<leader>de",
 		function()
 			vim.diagnostic.config({
-				virtual_text = { severity = vim.diagnostic.severity.ERROR },
+				virtual_text = virtual_text_config({
+					severity = vim.diagnostic.severity.ERROR,
+				}),
 			})
 		end,
 		vim.tbl_extend("force", opts, {
@@ -147,7 +171,7 @@ function M.setup_keymaps()
 		"<leader>da",
 		function()
 			vim.diagnostic.config({
-				virtual_text = { enabled = true },
+				virtual_text = virtual_text_config(),
 			})
 		end,
 		vim.tbl_extend("force", opts, {
@@ -161,7 +185,7 @@ function M.setup_keymaps()
 		function()
 			local config = vim.diagnostic.config() or {}
 			vim.diagnostic.config({
-				virtual_text = not config.virtual_text,
+				virtual_text = virtual_text_enabled(config.virtual_text) and false or virtual_text_config(),
 			})
 		end,
 		vim.tbl_extend("force", opts, {

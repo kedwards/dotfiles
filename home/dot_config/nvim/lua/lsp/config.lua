@@ -1,6 +1,11 @@
 local capabilities = require("lsp.capabilities")
 
 local M = {}
+local function with_handler_opts(handler, opts)
+	return function(err, result, ctx, config)
+		return handler(err, result, ctx, vim.tbl_deep_extend("force", config or {}, opts))
+	end
+end
 
 --- Configure global LSP defaults
 function M.setup()
@@ -13,11 +18,11 @@ function M.setup()
 
 		-- Default handlers
 		handlers = {
-			["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+			["textDocument/hover"] = with_handler_opts(vim.lsp.handlers.hover, {
 				border = "rounded",
 				focusable = false,
 			}),
-			["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+			["textDocument/signatureHelp"] = with_handler_opts(vim.lsp.handlers.signature_help, {
 				border = "rounded",
 				focusable = false,
 			}),
