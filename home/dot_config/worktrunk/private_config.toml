@@ -1,2 +1,1 @@
 worktree-path = "{{ repo_path }}/{{ branch | sanitize }}"
-skip-shell-integration-prompt = true
