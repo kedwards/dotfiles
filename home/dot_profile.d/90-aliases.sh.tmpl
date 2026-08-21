@@ -3,20 +3,12 @@ __load_docker_tools() {
   unset -f __load_docker_tools
 }
 
-__load_git_tools() {
-  source "$HOME/.local/bin/git-tools"
-  unset -f __load_git_tools
-}
-
 [ -f "${BMA_HOME:-$HOME/.bash-my-aws}/aliases" ] &&
   source "${BMA_HOME:-$HOME/.bash-my-aws}/aliases"
 
 alias dpp='__load_docker_tools; pull_push_image'
 alias l='ls -laF'
 alias myip='net-tools myip'
-alias wt='__load_git_tools; worktree'
-
-clone() { __load_git_tools; clone_repository "$@"; }
 
 up() {
   local count="${1:-1}"

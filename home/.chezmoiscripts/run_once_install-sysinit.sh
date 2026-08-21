@@ -18,5 +18,3 @@ fi
 # END sysinit: load custom profile settings
 EOF
 
-# Install mise plugins
-mise plugin add git-worktree-wrapper https://github.com/kedwards/asdf-git-worktree-wrapper
