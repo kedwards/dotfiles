@@ -8,7 +8,6 @@ __load_docker_tools() {
 
 alias dpp='__load_docker_tools; pull_push_image'
 alias l='ls -laF'
-alias myip='net-tools myip'
 
 up() {
   local count="${1:-1}"
@@ -47,56 +46,3 @@ if command -v docker &>/dev/null; then
   # Docker IP address
   alias dip='_dip() { [[ $# -eq 1 ]] && docker inspect -f `{{"{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"}}` "$1" 2>/dev/null || echo "Usage: dip <container_name_or_id>"; }; _dip'
 fi
-
-{{- if or (eq .chezmoi.osRelease.id "arch") (eq .chezmoi.osRelease.id "endeavouros") }}
-
-if command -v pacman &>/dev/null; then
-  # install package
-  alias paci='sudo pacman -S'
-
-  # Pacman Has Installed - what files where installed in a package
-  alias pachi='sudo pacman -Ql'
-
-  # search
-  alias pacs='sudo pacman -Ss'
-
-  # update
-  alias pacu='sudo pacman -Syu'
-
-  # remove package but not dependencies
-  alias pacr='sudo pacman -R'
-
-  # remove package with unused dependencies by other softwares
-  alias pacrr='sudo pacman -Rs'
-
-  # remove pacman cache
-  alias pacrc='sudo pacman -Sc'
-  alias pacc='sudo pacman -Sc'
-  alias paccc='sudo pacman -Scc' # empty the whole cache
-fi
-
-if command -v yay &>/dev/null; then
-  # install
-  alias yayi='yay -S'
-
-  # Yay Has Installed - what files where installed in a package
-  alias yayhi='yay -Ql'
-
-  # search
-  alias yays='yay -Ss'
-
-  # update
-  alias yayu='yay -Syu'
-
-  # remove package but not dependencies
-  alias yayr='yay -R'
-
-  # remove package with unused dependencies by other softwares
-  alias yayrr='yay -Rs'
-
-  # remove yay's cache
-  alias yayrc='yay -Sc'
-  alias yayls="yay -Qe"
-fi
-{{- end }}
-
