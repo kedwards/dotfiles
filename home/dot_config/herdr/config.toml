@@ -7,18 +7,77 @@ show_agent_labels_on_pane_borders = false
 name = "terminal"
 auto_switch = false
 
-
 [worktrees]
 directory = "~/projects"
 
+# herdr-golden-ratio
 [[keys.command]]
-key = "prefix+e"
+key = "prefix+shift+f"
 type = "plugin_action"
-command = "chmarax.herdr-nvim.toggle"
-description = "nvim sidebar"
+command = "vv.golden-ratio.apply"
+description = "golden ratio"
+
+# herdr-gitview
+[[keys.command]]
+key = "prefix+shift+g"
+type = "plugin_action"
+command = "chmarax.gitview.toggle"
+description = "git view sidebar"
 
 [[keys.command]]
 key = "prefix+o"
 type = "plugin_action"
 command = "chmarax.herdr-nvim.pick-file"
 description = "open file from agent output"
+
+# herdr-nvim
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.toggle"
+description = "nvim sidebar"
+
+# herdr-lazy
+[[keys.command]]
+key = "prefix+shift+l"
+type = "plugin_action"
+command = "herdr-lazy.manage"
+description = "manage plugins"
+
+# herdr-sessionizer
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "sessionizer.open"
+description = "open project workspace"
+
+[[keys.command]]
+key = "prefix+up"
+type = "plugin_action"
+command = "sessionizer.worktree-open"
+description = "open worktree workspace"
+
+# herdr-scratch
+[[keys.command]]
+key = "prefix+p"
+type = "plugin_action"
+command = "herdr.scratch.toggle"
+description = "toggle scratchpad"
+
+[[keys.command]]
+key = "prefix+shift+p"
+type = "plugin_action"
+command = "herdr.scratch.list"
+description = "list scratchpads"
+
+[[keys.command]]
+key = "prefix+g"
+type = "plugin_action"
+command = "herdr.scratch.lazygit"
+description = "toggle lazygit scratchpad"
+
+[[keys.command]]
+key = "prefix+n"
+type = "plugin_action"
+command = "herdr.scratch.notes"
+description = "toggle notes scratchpad"
