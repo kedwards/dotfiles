@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# reach master rip main us-west-2 lambdas-build   # build + upload
+# reach master rip main us-west-2 "" false        # deploy
+
 set -euo pipefail
 
 SCRIPT_NAME="$(basename "$0")"
@@ -7,7 +10,7 @@ usage() {
 	cat <<EOF
 Usage:
   $SCRIPT_NAME local-db-up
-  $SCRIPT_NAME <target> <env> [config] [region] [tags] [dr_deploy] [service]
+  $SCRIPT_NAME [--no-secrets] <target> <env> [config] [region] [tags] [dr_deploy] [service]
 
 Arguments:
   target      Ansible target
@@ -18,11 +21,23 @@ Arguments:
   dr_deploy   DR deploy flag
   service     Service name (default: setup)
 
+Options:
+  --no-secrets  Skip the 1Password lookup for deploy secrets
+                (binbase_password, codebuild_github_token). Roles that
+                need them, e.g. cf_lambdas, will fail without them.
+                Also settable via REACH_NO_SECRETS=1.
+
+Environment:
+  REACH_APACHE_VERSION  Value for apache_version, required by cf_engine.
+                        Default: development (matches CI branch builds).
+                        For a tag deploy, set it to the tag, e.g. 2026.XX.X
+  REACH_NO_SECRETS      Same as --no-secrets when set to 1.
+
 Examples:
   $SCRIPT_NAME local-db-up
-  $SCRIPT_NAME plan ps
-  $SCRIPT_NAME apply prod release us-east-1 db
-  $SCRIPT_NAME apply prod release us-east-1 db "" publish
+  $SCRIPT_NAME master rip main us-west-2 lambdas-build
+  $SCRIPT_NAME master rip main us-west-2 "" false
+  $SCRIPT_NAME --no-secrets master rip main us-west-2 lambdas-build
 EOF
 }
 
@@ -43,6 +58,18 @@ local_db_up() {
 	log "Starting local Postgres and CloudBeaver from $REACH_COMPOSE_FILE"
 	docker compose -f "$REACH_COMPOSE_FILE" up -d engine dbeaver
 }
+
+# Strip option flags out of the argument list before positional parsing so
+# --no-secrets can appear anywhere.
+NO_SECRETS="${REACH_NO_SECRETS:-}"
+_args=()
+for _arg in "$@"; do
+	case "$_arg" in
+	--no-secrets) NO_SECRETS=1 ;;
+	*) _args+=("$_arg") ;;
+	esac
+done
+set -- ${_args[@]+"${_args[@]}"}
 
 case "${1:-}" in
 local-db-up)
@@ -129,17 +156,89 @@ log "Logging into target profile: $AWS_TARGET_PROFILE"
 TARGET_EXPORTS="$("$AWST_BIN" login "$AWS_TARGET_PROFILE" --export --region "$REGION")" || err "failed to log into target profile '$AWS_TARGET_PROFILE'"
 eval "$TARGET_EXPORTS"
 
+SECRETS_FILE=""
+
 cleanup() {
+	if [[ -n "${SECRETS_FILE:-}" && -f "${SECRETS_FILE:-}" ]]; then
+		rm -f "$SECRETS_FILE"
+	fi
 	log "Cleaning up AWS session"
 	eval "$("$AWST_BIN" logout --export)" || true
 }
 trap cleanup EXIT
 
+PY_BIN="${ANSIBLE_PYTHON_INTERPRETER:-$(command -v python || command -v python3 || true)}"
+: "${PY_BIN:?python interpreter not found}"
+
+# Deploy secrets, mirroring the CI workflow (.github/workflows/deploy-engine.yaml).
+BINBASE_PASSWORD=""
+CODEBUILD_TOKEN=""
+if [[ -n "$NO_SECRETS" ]]; then
+	log "--no-secrets set; skipping 1Password lookup"
+else
+	command -v op >/dev/null || err "'op' not found (1Password CLI); re-run with --no-secrets to skip"
+	log "Fetching deploy secrets from 1Password (DevOps vault)"
+	BINBASE_PASSWORD="$(op item get 'binbase-cred' --fields label='password' --vault DevOps --reveal)" ||
+		err "failed to read 'binbase-cred' from 1Password"
+	CODEBUILD_TOKEN="$(op item get 'Github Actions- github account' --fields label='codebuild-connector' --vault DevOps --reveal)" ||
+		err "failed to read 'codebuild-connector' from 1Password"
+fi
+
+# Only pass dr_deploy when it has a value. Extra-vars take the highest ansible
+# precedence, so passing an empty string here would clobber the default and
+# could not be corrected by a later set_fact.
+EXTRA_VARS_ARG=""
+if [[ -n "$DR_DEPLOY" ]]; then
+	EXTRA_VARS_ARG="dr_deploy=$DR_DEPLOY"
+fi
+
+# cf_engine requires apache_version and infra/ansible defines no default for
+# it. CI uses the tag name for tag-triggered runs and DEFAULT_APACHE_VERSION
+# ('development') otherwise -- see deploy-engine.yaml:110-123.
+APACHE_VERSION="${REACH_APACHE_VERSION:-development}"
+EXTRA_VARS_ARG="apache_version=$APACHE_VERSION${EXTRA_VARS_ARG:+ $EXTRA_VARS_ARG}"
+
+# Sensitive values belong in a vars file, not EXTRA_VARS: make echoes
+# EXTRA_VARS and it shows up in `ps` output. Only the `master` target wires
+# $(VARS_FILE_ARG) through to ansible-playbook, so other targets have to keep
+# using the EXTRA_VARS path.
+if [[ "$TARGET" == "master" ]]; then
+	umask 077
+	SECRETS_FILE="$(mktemp -t reach-vars-XXXXXX)"
+	PS_AKI="$PS_AWS_ACCESS_KEY_ID" \
+		PS_SAK="$PS_AWS_SECRET_ACCESS_KEY" \
+		PS_AST="$PS_AWS_SESSION_TOKEN" \
+		BINBASE="$BINBASE_PASSWORD" \
+		CODEBUILD="$CODEBUILD_TOKEN" \
+		"$PY_BIN" -c '
+import json, os
+data = {
+    "ps_aws_access_key_id":     os.environ["PS_AKI"],
+    "ps_aws_secret_access_key": os.environ["PS_SAK"],
+    "ps_aws_session_token":     os.environ["PS_AST"],
+}
+for key, src in (("binbase_password", "BINBASE"),
+                 ("codebuild_github_token", "CODEBUILD")):
+    if os.environ.get(src):
+        data[key] = os.environ[src]
+print(json.dumps(data))
+' >"$SECRETS_FILE" || err "failed to write secrets file"
+else
+	log "target '$TARGET' does not support VARS_FILE; passing credentials via EXTRA_VARS"
+	EXTRA_VARS_ARG="ps_aws_access_key_id=$PS_AWS_ACCESS_KEY_ID ps_aws_secret_access_key=$PS_AWS_SECRET_ACCESS_KEY ps_aws_session_token=$PS_AWS_SESSION_TOKEN $EXTRA_VARS_ARG"
+	if [[ -n "$BINBASE_PASSWORD" ]]; then
+		EXTRA_VARS_ARG="$EXTRA_VARS_ARG binbase_password=$BINBASE_PASSWORD"
+	fi
+	if [[ -n "$CODEBUILD_TOKEN" ]]; then
+		EXTRA_VARS_ARG="$EXTRA_VARS_ARG codebuild_github_token=$CODEBUILD_TOKEN"
+	fi
+fi
+
 (
 	unset AWS_PROFILE
 
 	export ANSIBLE_PYTHON_INTERPRETER
-	ANSIBLE_PYTHON_INTERPRETER="${ANSIBLE_PYTHON_INTERPRETER:-$(command -v python || command -v python3)}"
+	ANSIBLE_PYTHON_INTERPRETER="${ANSIBLE_PYTHON_INTERPRETER:-$PY_BIN}"
 	: "${ANSIBLE_PYTHON_INTERPRETER:?python interpreter not found}"
 
 	log "Running Ansible target '$TARGET'"
@@ -148,6 +247,8 @@ trap cleanup EXIT
 		REGION="$REGION" \
 		CONFIG="$CONFIG" \
 		SERVICE="$SERVICE" \
-		EXTRA_VARS="ps_aws_access_key_id=$PS_AWS_ACCESS_KEY_ID ps_aws_secret_access_key=$PS_AWS_SECRET_ACCESS_KEY ps_aws_session_token=$PS_AWS_SESSION_TOKEN dr_deploy=$DR_DEPLOY" \
+		TOPV2="${TOPV2:-$PWD}" \
+		VARS_FILE="$SECRETS_FILE" \
+		EXTRA_VARS="$EXTRA_VARS_ARG" \
 		RUNTAG="$TAGS"
 )

@@ -10,6 +10,19 @@ auto_switch = false
 [worktrees]
 directory = "~/projects"
 
+# herdr-nvim
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.toggle"
+description = "nvim sidebar"
+# herdr-nvim pickfile
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.pick-file"
+description = "open file from agent output"
+
 # herdr-golden-ratio
 [[keys.command]]
 key = "prefix+shift+f"
@@ -24,20 +37,7 @@ type = "plugin_action"
 command = "chmarax.gitview.toggle"
 description = "git view sidebar"
 
-[[keys.command]]
-key = "prefix+o"
-type = "plugin_action"
-command = "chmarax.herdr-nvim.pick-file"
-description = "open file from agent output"
-
-# herdr-nvim
-[[keys.command]]
-key = "prefix+e"
-type = "plugin_action"
-command = "chmarax.herdr-nvim.toggle"
-description = "nvim sidebar"
-
-# herdr-lazy
+# herdr-lazy plugin manager
 [[keys.command]]
 key = "prefix+shift+l"
 type = "plugin_action"
@@ -50,7 +50,7 @@ key = "prefix+f"
 type = "plugin_action"
 command = "sessionizer.open"
 description = "open project workspace"
-
+# herdr-sessionizer
 [[keys.command]]
 key = "prefix+up"
 type = "plugin_action"
@@ -81,3 +81,9 @@ key = "prefix+n"
 type = "plugin_action"
 command = "herdr.scratch.notes"
 description = "toggle notes scratchpad"
+
+[[keys.command]]
+key = "prefix+t"
+type = "plugin_action"
+command = "herdr-navigator.open"
+description = "jump to anything"

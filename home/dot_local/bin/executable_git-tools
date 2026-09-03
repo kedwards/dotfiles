@@ -1,6 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+
+clone_repository() {
+  local owner="${1,,}"
+  local repo="${2,,}"
+  local dest="${3:-$HOME/projects/$repo}"
+  local type="${4:-bare}"
+
+  mkdir -p "$(dirname "$dest")"
+
+  if [[ -d $dest ]]; then
+    git -C "$dest" fetch || true
+    return 0
+  fi
+
+  echo "Destination: $dest"
+
+	if [[ $type == "clone" ]]; then
+		git clone "https://github.com/$owner/$repo.git" "$dest"
+	else
+		git clone --bare "https://github.com/$owner/$repo.git" "$dest"
+		git -C "$dest" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+		git -C "$dest" fetch || true
+	fi  
+}
+
 install_completion() {
 	local shell="${1:-${SHELL_TYPE:-$(basename "${SHELL:-bash}")}}"
 	local dir file url version url_suffix
@@ -31,12 +56,16 @@ install_completion() {
 }
 
 case "${1:-install-completion}" in
+clone)
+  shift
+  clone_repository "$@"
+  ;;
 install-completion)
 	shift || true
 	install_completion "${1:-}"
 	;;
 *)
-	echo "git-tools install-completion [bash|zsh]" >&2
-	exit 1
+  echo "git-tools clone | install-completion [bash|zsh]" >&2
+	exit 0
 	;;
 esac
