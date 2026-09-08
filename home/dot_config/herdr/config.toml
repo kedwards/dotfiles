@@ -15,6 +15,15 @@ auto_switch = false
 [worktrees]
 directory = "~/projects"
 
+### cowboyvang.which-key
+[[keys.command]]
+key = "prefix+space"
+type = "popup"
+command = "sh ~/.config/herdr/plugins/config/cowboyvang.which-key/launch.sh"
+description = "which-key: show prefix bindings"
+width = "78%"
+height = "62%"
+
 ### herdr-nvim
 [[keys.command]]
 key = "prefix+e"
@@ -35,14 +44,6 @@ key = "prefix+shift+l"
 type = "plugin_action"
 command = "herdr-lazy.manage"
 description = "manage plugins"
-
-### herdr-navigator
-# herdr plugin action invoke herdr-navigator.open
-[[keys.command]]
-key = "prefix+t"
-type = "plugin_action"
-command = "herdr-navigator.open"
-description = "jump to anything"
 
 ### herdr-sessionizer
 # herdr plugin action invoke sessionizer.open
@@ -91,17 +92,18 @@ description = "command bar"
 # send it a prompt: select text in any pane, then
 # herdr plugin action invoke send --plugin herdr.warp
 [[keys.command]]
-key = "prefix+w"
+key = "prefix+W"
 type = "plugin_action"
 command = "herdr.warp.open"
 description = "send selection to warp"
 
-### herdr-keymap
+### herdr-notes
+# herdr plugin action invoke herdr-notes.open-notes
 [[keys.command]]
-key = "prefix+m"
+key = "prefix+N"
 type = "plugin_action"
-command = "tds.keymap.open_palette"
-description = "Keybindings palette"
+command = "herdr-notes.open-notes"
+description = "Open notes"
 
 ### herdr-splits.nvim
 [[keys.command]]
