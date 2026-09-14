@@ -1,5 +1,6 @@
 [tools]
 amazon-ecr-credential-helper = "latest"
+"pipx:ansible-core" = "latest"
 argocd = "latest"
 awscli = "latest"
 bat = "latest"

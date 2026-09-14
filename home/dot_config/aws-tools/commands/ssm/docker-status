@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# profile: wtf
+# description: docker compose status
+# region: us-west-2
+# instances: CheckoutEngine
+
+cd /opt/configuration/engine
+docker compose ps

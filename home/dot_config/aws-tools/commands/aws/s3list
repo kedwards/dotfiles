@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# description: list s3 folders
+aws s3 ls
