@@ -92,7 +92,7 @@ description = "command bar"
 # send it a prompt: select text in any pane, then
 # herdr plugin action invoke send --plugin herdr.warp
 [[keys.command]]
-key = "prefix+W"
+key = "prefix+w"
 type = "plugin_action"
 command = "herdr.warp.open"
 description = "send selection to warp"

@@ -26,6 +26,8 @@ up() {
   cd "$path" || return
 }
 
+alias awsl='aws --endpoint-url http://localhost:4566 --profile floci'
+
 if command -v docker &>/dev/null; then
   # Container Analysis
   alias dive="docker run -ti --rm -v /var/run/docker.sock:/var/run/docker.sock wagoodman/dive"
