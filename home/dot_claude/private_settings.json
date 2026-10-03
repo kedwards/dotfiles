@@ -1,93 +1,59 @@
 {
-  "model": "opus[1m]",
+  "enabledPlugins": {
+    "aws-core@claude-plugins-official": true,
+    "ponytail@ponytail": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8787/w/claude",
+    "ENABLE_TOOL_SEARCH": "auto",
+    "_CLAUDE_CODE_ASSUME_FIRST_PARTY_BASE_URL": "1"
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "repo": "DietrichGebert/ponytail",
+        "source": "github"
+      }
+    }
+  },
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Bash",
         "hooks": [
           {
-            "type": "command",
-            "command": "atuin hook claude-code"
+            "command": "atuin hook claude-code",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Bash"
       },
       {
         "hooks": [
           {
-            "type": "command",
             "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
+            "timeout": 30,
+            "type": "command"
           }
         ]
       }
     ],
     "PostToolUseFailure": [
       {
-        "matcher": "Bash",
         "hooks": [
           {
-            "type": "command",
-            "command": "atuin hook claude-code"
+            "command": "atuin hook claude-code",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Bash"
       },
       {
         "hooks": [
           {
-            "type": "command",
             "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "atuin hook claude-code"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "'/home/kedwards/.local/share/mise/installs/node/latest/bin/caveman' shrink-hook",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
+            "timeout": 30,
+            "type": "command"
           }
         ]
       }
@@ -96,42 +62,38 @@
       {
         "hooks": [
           {
-            "type": "command",
             "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
+            "timeout": 30,
+            "type": "command"
           }
         ]
       }
     ],
-    "SubagentStart": [
+    "PreToolUse": [
       {
         "hooks": [
           {
-            "type": "command",
+            "command": "atuin hook claude-code",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash"
+      },
+      {
+        "hooks": [
+          {
             "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
+            "timeout": 30,
+            "type": "command"
           }
         ]
-      }
-    ],
-    "SubagentStop": [
+      },
       {
         "hooks": [
           {
-            "type": "command",
-            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
+            "command": "'/home/kedwards/.local/share/mise/installs/node/latest/bin/caveman' shrink-hook",
+            "timeout": 30,
+            "type": "command"
           }
         ]
       }
@@ -140,40 +102,78 @@
       {
         "hooks": [
           {
-            "type": "command",
             "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
-            "timeout": 30
+            "timeout": 30,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
+            "timeout": 30,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
+            "timeout": 30,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
+            "timeout": 30,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
+            "timeout": 30,
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "'/home/kedwards/.caveman/bin/caveman-proxy' native-hook claude --adapter '/home/kedwards/.local/share/mise/installs/node/26.8.1/lib/node_modules/@caveman-ai/cli/dist/native-hook-fast.js'",
+            "timeout": 30,
+            "type": "command"
           }
         ]
       }
     ]
   },
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline-command.sh",
-    "padding": 0,
-    "refreshInterval": 10
-  },
-  "enabledPlugins": {
-    "ponytail@ponytail": true,
-    "superpowers@claude-plugins-official": true,
-    "aws-core@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "ponytail": {
-      "source": {
-        "source": "github",
-        "repo": "DietrichGebert/ponytail"
-      }
-    }
-  },
-  "tui": "fullscreen",
+  "model": "opus[1m]",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
+  "statusLine": {
+    "command": "~/.claude/statusline-command.sh",
+    "padding": 0,
+    "refreshInterval": 10,
+    "type": "command"
+  },
   "theme": "dark",
-  "env": {
-    "ANTHROPIC_BASE_URL": "http://127.0.0.1:8787/w/claude",
-    "_CLAUDE_CODE_ASSUME_FIRST_PARTY_BASE_URL": "1",
-    "ENABLE_TOOL_SEARCH": "auto"
-  }
+  "tui": "fullscreen"
 }
