@@ -39,3 +39,9 @@ task = "latest"
 usage = "latest"
 uv = "latest"
 worktrunk = "latest"
+
+[settings]
+minimum_release_age = "0s"
+
+[settings.self_update]
+auto = "1d"
