@@ -9,13 +9,40 @@ show_agent_labels_on_pane_borders = false
 prompt_new_tab_name = false
 
 [theme]
-name = "terminal"
+name = "one-dark"
 auto_switch = false
 
 [worktrees]
 directory = "~/projects"
 
-### cowboyvang.which-key
+### https://github.com/natori-hrj/herdr-lazy
+# herdr plugin pane open --plugin herdr-lazy --entrypoint manage --focus
+[[keys.command]]
+key = "prefix+shift+l"
+type = "plugin_action"
+command = "herdr-lazy.manage"
+description = "manage plugins"
+
+### https://github.com/kedwards/herdr-awst
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "herdr-awst.login"
+description = "awst login"
+
+[[keys.command]]
+key = "prefix+shift+a"
+type = "plugin_action"
+command = "herdr-awst.logout"
+description = "awst logout"
+
+[[keys.command]]
+key = "prefix+shift+c"
+type = "plugin_action"
+command = "herdr-awst.connect"
+description = "awst connect"
+
+### https://github.com/CowboyVang/herdr-which-key
 [[keys.command]]
 key = "prefix+space"
 type = "popup"
@@ -24,30 +51,7 @@ description = "which-key: show prefix bindings"
 width = "78%"
 height = "62%"
 
-### herdr-nvim
-[[keys.command]]
-key = "prefix+e"
-type = "plugin_action"
-command = "chmarax.herdr-nvim.toggle"
-description = "nvim sidebar"
-
-[[keys.command]]
-key = "prefix+o"
-type = "plugin_action"
-command = "chmarax.herdr-nvim.pick-file"
-description = "open file from agent output"
-
-### herdr-lazy plugin manager
-# herdr plugin pane open --plugin herdr-lazy --entrypoint manage --focus
-[[keys.command]]
-key = "prefix+shift+l"
-type = "plugin_action"
-command = "herdr-lazy.manage"
-description = "manage plugins"
-
-### herdr-sessionizer
-# herdr plugin action invoke sessionizer.open
-# herdr plugin action invoke sessionizer.worktree-open
+### https://github.com/andrewchng/herdr-sessionizer
 [[keys.command]]
 key = "prefix+f"
 type = "plugin_action"
@@ -60,52 +64,41 @@ type = "plugin_action"
 command = "sessionizer.worktree-open"
 description = "open worktree workspace"
 
-### herdr-lazygit
 [[keys.command]]
-key = "prefix+g"
+key = "prefix+down"
 type = "plugin_action"
-command = "herdr-lazygit.open"
+command = "sessionizer.close"
+description = "close or remove workspaces"
 
+### https://github.com/ChmaraX/herdr-nvim
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.toggle"
+description = "nvim sidebar"
+
+# [[keys.command]]
+# key = "prefix+o"
+# type = "plugin_action"
+# command = "chmarax.herdr-nvim.pick-file"
+# description = "open file from agent output"
+
+### https://github.com/Crokily/herdr-lazygit
+# overides: keys.goto
+# Open the session navigator. 
+# [[keys.command]]
+# key = "prefix+g"
+# type = "plugin_action"
+# command = "herdr-lazygit.open"
+
+# overides: keys.open_worktree
+# Open an existing Git worktree from the selected workspace. Unset by default.
 # [[keys.command]]
 # key = "prefix+shift+g"
 # type = "plugin_action"
 # command = "herdr-lazygit.open-tab"
 
-### herdr-gitview
-[[keys.command]]
-key = "prefix+shift+g"
-type = "plugin_action"
-command = "chmarax.gitview.toggle"
-description = "git view sidebar"
-
-### herdr-bar
-[[keys.command]]
-key = "prefix+k"
-type = "plugin_action"
-command = "herdr-bar.open"
-description = "command bar"
-
-### herdr-warp
-# open a warp pane (split right of the focused pane, same cwd)
-# herdr plugin action invoke open --plugin herdr.warp
-#
-# send it a prompt: select text in any pane, then
-# herdr plugin action invoke send --plugin herdr.warp
-[[keys.command]]
-key = "prefix+w"
-type = "plugin_action"
-command = "herdr.warp.open"
-description = "send selection to warp"
-
-### herdr-notes
-# herdr plugin action invoke herdr-notes.open-notes
-[[keys.command]]
-key = "prefix+N"
-type = "plugin_action"
-command = "herdr-notes.open-notes"
-description = "Open notes"
-
-### herdr-splits.nvim
+### https://github.com/lmilojevicc/herdr-splits.nvim
 [[keys.command]]
 key = "ctrl+h"
 type = "plugin_action"
@@ -127,7 +120,7 @@ command = "herdr-splits.nav-up"
 # command = "herdr-splits.nav-right"
 
 [[keys.command]]
-key = "alt+up"
+key = "alt+h"
 type = "plugin_action"
 command = "herdr-splits.resize-left"
 
@@ -146,7 +139,7 @@ key = "alt+l"
 type = "plugin_action"
 command = "herdr-splits.resize-right"
 
-### herdr-plugin-echo
+### https://github.com/andischerer/herdr-plugin-echo
 [[keys.command]]
 key = "prefix+alt+m"
 type = "plugin_action"
@@ -165,24 +158,18 @@ type = "plugin_action"
 command = "herdr-plugin-echo.broadcast"
 description = "echo: toggle broadcast pane"
 
-### herdr-awst
-# herdr plugin action invoke herdr-awst.login
-# herdr plugin action invoke herdr-awst.logout
-# herdr plugin action invoke herdr-awst.connect
+### https://github.com/ChmaraX/herdr-gitview
+# overides: keys.open_worktree
+# Open an existing Git worktree from the selected workspace. Unset by default.
 [[keys.command]]
-key = "prefix+a"
+key = "prefix+shift+g"
 type = "plugin_action"
-command = "herdr-awst.login"
-description = "awst login"
+command = "chmarax.gitview.toggle"
+description = "git view sidebar"
 
+### https://github.com/jeffarese/herdr-bar
 [[keys.command]]
-key = "prefix+shift+a"
+key = "prefix+k"
 type = "plugin_action"
-command = "herdr-awst.logout"
-description = "awst logout"
-
-[[keys.command]]
-key = "prefix+shift+c"
-type = "plugin_action"
-command = "herdr-awst.connect"
-description = "awst connect"
+command = "herdr-bar.open"
+description = "command bar"

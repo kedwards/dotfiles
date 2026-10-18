@@ -8,6 +8,7 @@ return {
 		bigfile = { enabled = true },
 		bufdelete = { enabled = true },
 		dashboard = {
+			enabled = false,
 			preset = {
 				keys = {
 					{ icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
