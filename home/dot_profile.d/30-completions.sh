@@ -3,7 +3,7 @@ command -v aws_completer >/dev/null && complete -C "$(command -v aws_completer)"
 [ -f /etc/bash_completion ] && source /etc/bash_completion
 
 [ -f "$HOME/.local/share/bash-completion/completions/docker" ] &&
-  source "$HOME/.local/share/bash-completion/completions/docker"
+	source "$HOME/.local/share/bash-completion/completions/docker"
 
 [ -f "$HOME/.local/share/bash-completion/completions/git-completion.bash" ] &&
-  source "$HOME/.local/share/bash-completion/completions/git-completion.bash"
+	source "$HOME/.local/share/bash-completion/completions/git-completion.bash"

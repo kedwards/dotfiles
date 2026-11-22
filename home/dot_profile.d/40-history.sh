@@ -17,18 +17,18 @@ shopt -s histappend
 # Append commands immediately (not at end of session) without clobbering
 # existing prompt hooks such as Warp's shell integration.
 __history_append_prompt_command() {
-  history -a
+	history -a
 }
 
 if declare -p PROMPT_COMMAND >/dev/null 2>&1 && declare -p PROMPT_COMMAND 2>/dev/null | grep -q 'declare \-a'; then
-  PROMPT_COMMAND=(__history_append_prompt_command "${PROMPT_COMMAND[@]}")
+	PROMPT_COMMAND=(__history_append_prompt_command "${PROMPT_COMMAND[@]}")
 elif [ -n "${PROMPT_COMMAND:-}" ]; then
-  case ";${PROMPT_COMMAND};" in
-    *";__history_append_prompt_command;"*) ;;
-    *) PROMPT_COMMAND="__history_append_prompt_command; ${PROMPT_COMMAND}" ;;
-  esac
+	case ";${PROMPT_COMMAND};" in
+	*";__history_append_prompt_command;"*) ;;
+	*) PROMPT_COMMAND="__history_append_prompt_command; ${PROMPT_COMMAND}" ;;
+	esac
 else
-  PROMPT_COMMAND="__history_append_prompt_command"
+	PROMPT_COMMAND="__history_append_prompt_command"
 fi
 
 export PROMPT_COMMAND

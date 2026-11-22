@@ -17,4 +17,3 @@ if [ -d "$HOME/.profile.d" ]; then
 fi
 # END sysinit: load custom profile settings
 EOF
-

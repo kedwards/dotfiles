@@ -1,44 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-
 clone_repository() {
-  local owner="${1,,}"
-  local repo="${2,,}"
-  local dest="${3:-$HOME/projects/$repo}"
-  local type="${4:-bare}"
-  local protocol="${5:-ssh}"
-  local url
+	local owner="${1,,}"
+	local repo="${2,,}"
+	local dest="${3:-$HOME/projects/$repo}"
+	local type="${4:-bare}"
+	local protocol="${5:-ssh}"
+	local url
 
-  mkdir -p "$(dirname "$dest")"
+	mkdir -p "$(dirname "$dest")"
 
-  if [[ -d $dest ]]; then
-    git -C "$dest" fetch || true
-    return 0
-  fi
+	if [[ -d $dest ]]; then
+		git -C "$dest" fetch || true
+		return 0
+	fi
 
-  echo "Destination: $dest"
+	echo "Destination: $dest"
 
-  case "$protocol" in
-  ssh)
-    url="git@github.com:$owner/$repo.git"
-    ;;
-  https)
-    url="https://github.com/$owner/$repo.git"
-    ;;
-  *)
-    echo "Unsupported protocol: $protocol (use ssh or https)" >&2
-    return 1
-    ;;
-  esac
+	case "$protocol" in
+	ssh)
+		url="git@github.com:$owner/$repo.git"
+		;;
+	https)
+		url="https://github.com/$owner/$repo.git"
+		;;
+	*)
+		echo "Unsupported protocol: $protocol (use ssh or https)" >&2
+		return 1
+		;;
+	esac
 
-  if [[ $type == "clone" ]]; then
-    git clone "$url" "$dest"
-  else
-    git clone --bare "$url" "$dest"
-    git -C "$dest" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-    git -C "$dest" fetch || true
-  fi
+	if [[ $type == "clone" ]]; then
+		git clone "$url" "$dest"
+	else
+		git clone --bare "$url" "$dest"
+		git -C "$dest" config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+		git -C "$dest" fetch || true
+	fi
 }
 
 install_completion() {
@@ -72,15 +71,15 @@ install_completion() {
 
 case "${1:-install-completion}" in
 clone)
-  shift
-  clone_repository "$@"
-  ;;
+	shift
+	clone_repository "$@"
+	;;
 install-completion)
 	shift || true
 	install_completion "${1:-}"
 	;;
 *)
-  echo "git-tools clone | install-completion [bash|zsh]" >&2
+	echo "git-tools clone | install-completion [bash|zsh]" >&2
 	exit 0
 	;;
 esac

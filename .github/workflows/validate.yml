@@ -28,8 +28,12 @@ jobs:
         run: shfmt -d .
 
   chezmoi:
-    name: Chezmoi
+    name: Chezmoi (desktop=${{ matrix.enable_desktop }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        enable_desktop: [false, true]
     steps:
       - uses: actions/checkout@v7
 
@@ -37,7 +41,9 @@ jobs:
         run: sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
 
       - name: Dry run
-        run: chezmoi init --apply --dry-run --source .
+        run: |
+          chezmoi init --source . --promptBool "Install the i3 desktop and GUI apps=${{ matrix.enable_desktop }}"
+          chezmoi apply --dry-run --source .
 
   lua:
     name: Lua

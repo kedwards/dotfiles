@@ -24,7 +24,15 @@ uv = "latest"
 worktrunk = "latest"
 
 # Installed on first use of one of their commands; `mise install --include-lazy` installs them all
-"pipx:ansible-core" = { version = "latest", lazy = true, lazy_bins = ["ansible", "ansible-config", "ansible-doc", "ansible-galaxy", "ansible-inventory", "ansible-playbook", "ansible-vault"] }
+"pipx:ansible-core" = { version = "latest", lazy = true, lazy_bins = [
+  "ansible",
+  "ansible-config",
+  "ansible-doc",
+  "ansible-galaxy",
+  "ansible-inventory",
+  "ansible-playbook",
+  "ansible-vault",
+] }
 argocd = { version = "latest", lazy = true }
 bats = { version = "latest", lazy = true }
 bun = { version = "latest", lazy = true }

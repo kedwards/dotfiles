@@ -129,7 +129,6 @@ function M.setup_mason(opts)
 		return false
 	end
 
-
 	-- Ensure directories exist (creates parent automatically with "p")
 	if not ensure_directory(norm_bin) then
 		return false
