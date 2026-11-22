@@ -3,9 +3,6 @@ __load_docker_tools() {
   unset -f __load_docker_tools
 }
 
-[ -f "${BMA_HOME:-$HOME/.bash-my-aws}/aliases" ] &&
-  source "${BMA_HOME:-$HOME/.bash-my-aws}/aliases"
-
 alias dpp='__load_docker_tools; pull_push_image'
 alias l='ls -laF'
 

@@ -1,44 +1,48 @@
+min_version = "2026.9.0"
+
 [tools]
 amazon-ecr-credential-helper = "latest"
-"pipx:ansible-core" = "latest"
-argocd = "latest"
 awscli = "latest"
 bat = "latest"
-bats = "latest"
-bun = "latest"
 chezmoi = "latest"
 claude = "latest"
-copilot-cli = "latest"
 fd = "latest"
 fzf = "latest"
 github-cli = "latest"
-go = "latest"
-helm = "latest"
-herdr = "latest"
 jq = "latest"
-k9s = "latest"
-kind = "latest"
-kubectl = "latest"
-kubectx = "latest"
-kubens = "latest"
-lazydocker = "latest"
 lazygit = "latest"
-minikube = "latest"
-mkcert = "latest"
 neovim = "latest"
 node = "latest"
 opencode = "latest"
 pre-commit = "latest"
 python = "latest"
-rclone = "latest"
 ripgrep = "latest"
-rust = "latest"
 shellcheck = "latest"
 starship = "latest"
-task = "latest"
 usage = "latest"
 uv = "latest"
 worktrunk = "latest"
+
+# Installed on first use of one of their commands; `mise install --include-lazy` installs them all
+"pipx:ansible-core" = { version = "latest", lazy = true, lazy_bins = ["ansible", "ansible-config", "ansible-doc", "ansible-galaxy", "ansible-inventory", "ansible-playbook", "ansible-vault"] }
+argocd = { version = "latest", lazy = true }
+bats = { version = "latest", lazy = true }
+bun = { version = "latest", lazy = true }
+copilot-cli = { version = "latest", lazy = true }
+go = { version = "latest", lazy = true }
+helm = { version = "latest", lazy = true }
+herdr = { version = "latest", lazy = true }
+k9s = { version = "latest", lazy = true }
+kind = { version = "latest", lazy = true }
+kubectl = { version = "latest", lazy = true }
+kubectx = { version = "latest", lazy = true }
+kubens = { version = "latest", lazy = true }
+lazydocker = { version = "latest", lazy = true }
+minikube = { version = "latest", lazy = true }
+mkcert = { version = "latest", lazy = true }
+rclone = { version = "latest", lazy = true }
+rust = { version = "latest", lazy = true }
+task = { version = "latest", lazy = true }
 
 [settings]
 minimum_release_age = "0s"

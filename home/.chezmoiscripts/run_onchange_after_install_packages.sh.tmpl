@@ -4,10 +4,9 @@ set -eu
 
 MISE="$HOME/.local/bin/mise"
 
-# Install mise if the binary is missing (nothing else in the repo installs it)
 if [ ! -x "$MISE" ]; then
-	echo "mise not found; installing..."
-	curl https://mise.run | sh
+	echo "mise not found at $MISE; run debian-sysinit seed/bootstrap.sh first" >&2
+	exit 1
 fi
 
 "$MISE" trust "$HOME/.config/mise/config.toml"
