@@ -1,0 +1,44 @@
+{{ if .enable_desktop -}}
+#!/bin/bash
+# i3 desktop; re-runs whenever this package list changes
+set -eu
+
+sudo apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+	acpi \
+	arandr \
+	brightnessctl \
+	dex \
+	dmenu \
+	dunst \
+	feh \
+	flameshot \
+	fontconfig \
+	gvfs \
+	i3 \
+	i3blocks \
+	i3lock \
+	i3status \
+	i3-wm \
+	imagemagick \
+	lightdm \
+	network-manager \
+	network-manager-applet \
+	pavucontrol \
+	pulseaudio \
+	rofi \
+	scrot \
+	sysstat \
+	thunar \
+	thunar-archive-plugin \
+	thunar-volman \
+	x11-xserver-utils \
+	xarchiver \
+	xfce4-terminal \
+	xinit \
+	xorg \
+	xss-lock \
+	zenity
+
+sudo systemctl enable lightdm
+{{ end -}}

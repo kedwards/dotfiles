@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# exit immediately if both the CLI and desktop app are already installed
-{ type op >/dev/null 2>&1 && command -v 1password >/dev/null 2>&1; } && exit
+# 1Password CLI only; the desktop app is installed by run_once_install-1password.sh.tmpl when enable_desktop is on
+type op >/dev/null 2>&1 && exit
 
 [ -r /etc/os-release ] || {
 	echo "unsupported Linux distribution"
@@ -35,24 +35,11 @@ esac
 tmpdir="$(mktemp -d)"
 trap cleanup 0 HUP INT TERM
 
-type op >/dev/null 2>&1 || {
-	curl -fsSLo "$tmpdir/1password-cli.deb" \
-		"https://downloads.1password.com/linux/debian/amd64/stable/1password-cli-amd64-latest.deb"
-	sudo apt install -y "$tmpdir/1password-cli.deb"
+curl -fsSLo "$tmpdir/1password-cli.deb" \
+	"https://downloads.1password.com/linux/debian/amd64/stable/1password-cli-amd64-latest.deb"
+sudo apt install -y "$tmpdir/1password-cli.deb"
 
-	command -v op >/dev/null 2>&1 || {
-		echo "1Password CLI installation failed"
-		exit 1
-	}
-}
-
-command -v 1password >/dev/null 2>&1 || {
-	curl -fsSLo "$tmpdir/1password-desktop.deb" \
-		"https://downloads.1password.com/linux/debian/amd64/stable/1password-latest.deb"
-	sudo apt install -y "$tmpdir/1password-desktop.deb"
-
-	command -v 1password >/dev/null 2>&1 || {
-		echo "1Password desktop app installation failed"
-		exit 1
-	}
+command -v op >/dev/null 2>&1 || {
+	echo "1Password CLI installation failed"
+	exit 1
 }

@@ -1,5 +1,5 @@
 */*lock.json
 
-{{ if or (eq .chezmoi.osRelease.id "endeavouros") (not .enable_i3) }}
+{{ if not .enable_desktop }}
 .config/i3/**
 {{ end }}

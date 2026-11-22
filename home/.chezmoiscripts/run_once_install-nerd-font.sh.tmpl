@@ -1,0 +1,18 @@
+{{ if .enable_desktop -}}
+#!/bin/bash
+set -eu
+
+FONT_NAME="NerdFontsSymbolsOnly"
+FONT_DIR="$HOME/.fonts/$FONT_NAME"
+[ -d "$FONT_DIR" ] && exit 0
+
+tmp_zip="$(mktemp --suffix=.zip)"
+trap 'rm -f "$tmp_zip"' EXIT
+
+curl -fL --connect-timeout 10 --max-time 300 -o "$tmp_zip" \
+	"https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${FONT_NAME}.zip"
+mkdir -p "$FONT_DIR"
+unzip -q "$tmp_zip" -d "$FONT_DIR"
+echo "$FONT_NAME $(date +"%F_%H-%M-%S")" >>"$HOME/.fonts/_sysinit_font.lock"
+fc-cache -f "$HOME/.fonts" >/dev/null
+{{ end -}}
