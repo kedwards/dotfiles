@@ -1,0 +1,6 @@
+{{ if not .is_arch -}}
+#!/bin/bash
+
+# Install atuin (Arch systems get it from run_onchange_install-arch-packages)
+curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --non-interactive
+{{ end -}}

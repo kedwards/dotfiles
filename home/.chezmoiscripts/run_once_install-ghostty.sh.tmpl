@@ -1,8 +1,0 @@
-{{ if .enable_desktop -}}
-#!/bin/bash
-set -eu
-
-command -v ghostty >/dev/null && exit 0
-
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
-{{ end -}}

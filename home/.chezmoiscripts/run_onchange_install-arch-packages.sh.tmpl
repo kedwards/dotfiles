@@ -1,0 +1,15 @@
+{{ if .is_arch -}}
+#!/bin/bash
+# Arch/Omarchy packages; re-runs whenever this list changes
+set -eu
+
+command -v omarchy >/dev/null || {
+	echo "omarchy not found; cannot install Arch packages" >&2
+	exit 1
+}
+
+omarchy pkg add \
+	1password \
+	atuin \
+	discord
+{{ end -}}

@@ -1,4 +1,4 @@
-{{ if .enable_desktop -}}
+{{ if and .is_debian .enable_desktop -}}
 #!/bin/bash
 # i3 desktop; re-runs whenever this package list changes
 set -eu
@@ -12,6 +12,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	dmenu \
 	dunst \
 	feh \
+	firefox-esr \
 	flameshot \
 	fontconfig \
 	gvfs \

@@ -1,4 +1,4 @@
-{{ if .enable_desktop -}}
+{{ if and .is_debian .enable_desktop -}}
 #!/bin/bash
 
 # Install discord
