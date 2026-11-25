@@ -42,7 +42,7 @@ jobs:
 
       - name: Dry run
         run: |
-          chezmoi init --source . --promptBool "Install the i3 desktop and GUI apps=${{ matrix.enable_desktop }}"
+          chezmoi init --source . --promptBool "EnableDesktop=${{ matrix.enable_desktop }}"
           chezmoi apply --dry-run --source .
 
   lua:
@@ -67,7 +67,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: selene
-        working-directory: home/dot_config/nvim
+        working-directory: home/dot_config/kedwards-nvim
         run: selene .
 
   toml:

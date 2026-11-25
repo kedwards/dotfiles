@@ -1,3 +1,4 @@
+{{ if .is_debian -}}
 #!/bin/bash
 
 MARKER="# BEGIN sysinit: load custom profile settings"
@@ -17,3 +18,4 @@ if [ -d "$HOME/.profile.d" ]; then
 fi
 # END sysinit: load custom profile settings
 EOF
+{{ end -}}

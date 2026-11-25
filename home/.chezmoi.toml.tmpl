@@ -25,7 +25,3 @@ encryption = "gpg"
 [hooks.edit-config-template.post]
     command = "chezmoi"
     args = ["init"]
-
-[hooks.read-source-state.pre]
-    command = "/bin/sh"
-    args = ["-c", "/bin/sh '{{ .chezmoi.workingTree }}/.chezmoihooks/run_install_password_manager.sh'"]

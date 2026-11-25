@@ -1,5 +1,15 @@
 */*lock.json
 
-{{ if not .enable_desktop }}
+{{ if not .is_debian }}
+.profile.d
+.profile.d/**
+.config/starship.toml
+{{ end }}
+
+{{ if not (and .is_debian .enable_desktop) }}
+.config/i3
 .config/i3/**
+.local/bin/i3ctl
+.local/bin/i3ctl.d
+.local/bin/i3ctl.d/**
 {{ end }}
