@@ -1,7 +1,6 @@
 onboarding = false
 # Mirrors the Omarchy tmux config in config/tmux/tmux.conf
 # tmux session -> herdr workspace, tmux window -> herdr tab, tmux pane -> herdr pane
-{{ if not .is_arch -}}
 [theme]
 # tmux ran on the terminal's own palette (bg=default, fg=default, ANSI blue accents)
 name = "terminal"
@@ -97,7 +96,6 @@ tab_bar_right = [{ type = "zoom" }, { type = "hostname" }]
 # the basename of the pane cwd. This is what Hyprland shows in the group bar,
 # and it resolves on the server so remote sessions name the remote host.
 window_title = "{hostname}: {workspace}"
-{{ end -}}
 
 [worktrees]
 directory = "~/projects"
