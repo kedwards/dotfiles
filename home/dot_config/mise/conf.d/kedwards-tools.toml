@@ -39,7 +39,7 @@ bun = { version = "latest", lazy = true }
 copilot-cli = { version = "latest", lazy = true }
 go = { version = "latest", lazy = true }
 helm = { version = "latest", lazy = true }
-herdr = { version = "latest", lazy = true, postinstall = "herdr plugin install natori-hrj/herdr-lazy" }
+herdr = { version = "latest", lazy = true, postinstall = "herdr plugin install natori-hrj/herdr-lazy --yes" }
 k9s = { version = "latest", lazy = true }
 kind = { version = "latest", lazy = true }
 kubectl = { version = "latest", lazy = true }
